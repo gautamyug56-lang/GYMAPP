@@ -1,0 +1,94 @@
+@page
+@model Rackroom.Web.Pages.MemberPortal.IndexModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "My Membership";
+    var membership = Model.Data.ActiveMembership;
+}
+<div class="container-fluid px-3 py-4">
+    <div class="mb-4">
+        <h1 class="h3">My Rackroom</h1>
+        <p class="text-muted">Your membership, training plan, payments and progress.</p>
+    </div>
+    <div class="row g-3">
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <h2 class="h5">Membership status</h2>
+                @if (membership is null)
+                { <p class="text-muted mb-0">You do not have an active membership.</p> }
+                else
+                {
+                    <p class="mb-1"><strong>@membership.MembershipPlan?.Name</strong></p>
+                    <p class="mb-1">Ends: @membership.EndDateUtc.ToLocalTime().ToString("yyyy-MM-dd")</p>
+                    @if (membership.CancellationRecord is not null)
+                    { <div class="alert alert-warning mt-3 mb-0">Cancellation requested. Effective: @membership.CancellationRecord.EffectiveAtUtc.ToLocalTime().ToString("yyyy-MM-dd")</div> }
+                    else
+                    { <a asp-page="./Pause" asp-route-membershipId="@membership.Id" class="btn btn-outline-primary btn-sm me-1">Request pause</a>
+                      <a asp-page="./Cancel" asp-route-membershipId="@membership.Id" class="btn btn-outline-danger btn-sm">Request cancellation</a> }
+                }
+            </div></div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <h2 class="h5">Workout plan</h2>
+                @if (Model.Data.ActiveWorkoutPlan?.WorkoutPlanTemplate is null)
+                { <p class="text-muted">No workout plan has been assigned.</p> }
+                else
+                {
+                    <h3 class="h6">@Model.Data.ActiveWorkoutPlan.WorkoutPlanTemplate.Name</h3>
+                    <p>@Model.Data.ActiveWorkoutPlan.WorkoutPlanTemplate.Description</p>
+                    @{
+                        using var doc = JsonDocument.Parse(Model.Data.ActiveWorkoutPlan.WorkoutPlanTemplate.PlanJson);
+                        if (doc.RootElement.TryGetProperty("days", out var days))
+                        {
+                            foreach (var day in days.EnumerateArray())
+                            {
+                                <div class="border rounded p-2 mb-2">
+                                    <strong>@day.GetProperty("name").GetString()</strong>
+                                    @if (day.TryGetProperty("exercises", out var exercises))
+                                    { <ul class="mb-0">@foreach (var exercise in exercises.EnumerateArray()) { <li>@exercise.GetString()</li> }</ul> }
+                                </div>
+                            }
+                        }
+                    }
+                }
+            </div></div>
+        </div>
+        <div class="col-12">
+            <div class="card shadow-sm"><div class="card-body">
+                <h2 class="h5">Monthly body progress</h2>
+                <form method="post" asp-page="./Measurement" class="row g-2 mb-3">
+                    <div class="col-6 col-md-3"><input class="form-control" name="WeightKg" type="number" step="0.01" min="0.01" max="500" placeholder="Weight (kg)" required /></div>
+                    <div class="col-6 col-md-3"><input class="form-control" name="HeightCm" type="number" step="0.01" min="0.01" max="300" placeholder="Height (cm)" required /></div>
+                    <div class="col-12 col-md-3"><button class="btn btn-primary w-100">Record this month</button></div>
+                </form>
+                <div style="height:280px"><canvas id="progressChart"></canvas></div>
+            </div></div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm"><div class="card-body">
+                <h2 class="h5">Invoices</h2>
+                @foreach (var invoice in Model.Data.Invoices.Take(10))
+                { <div class="d-flex justify-content-between border-bottom py-2"><span>Invoice #@invoice.InvoiceNumber</span><a asp-page="/Payments/Invoice" asp-route-invoiceNumber="@invoice.InvoiceNumber">PDF</a></div> }
+            </div></div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm"><div class="card-body">
+                <h2 class="h5">Recent attendance</h2>
+                @foreach (var attendance in Model.Data.RecentAttendance) { <div class="border-bottom py-2">@attendance.CheckedInAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm") — @attendance.Source</div> }
+            </div></div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.6.1/dist/chart.umd.min.js"></script>
+<script>
+const measurements = @Html.Raw(JsonSerializer.Serialize(Model.Data.Measurements.Select(x => new { date = x.RecordedAtUtc.ToLocalTime().ToString("yyyy-MM-dd"), weight = x.WeightKg, height = x.HeightCm })));
+new Chart(document.getElementById("progressChart"), {
+ type:"line", data:{labels:measurements.map(x=>x.date),datasets:[
+ {label:"Weight (kg)",data:measurements.map(x=>x.weight),tension:.25},
+ {label:"Height (cm)",data:measurements.map(x=>x.height),tension:.25}]},
+ options:{responsive:true,maintainAspectRatio:false}
+});
+</script>
+}
