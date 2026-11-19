@@ -24,6 +24,10 @@ public sealed class ChurnScoringService : IChurnScoringService
     {
         (ITransformer model, _) = await _modelStore.LoadModelAsync(cancellationToken);
         MLContext ml = new(seed: 20261119);
+        ChurnTrainingResult? report = await _modelStore.LoadReportAsync(cancellationToken);
+        string featureImportanceJson = System.Text.Json.JsonSerializer.Serialize(
+            report?.FeatureImportance ?? []);
+
         using PredictionEngine<ChurnData, ChurnPredictionOutput> engine =
             ml.Model.CreatePredictionEngine<ChurnData, ChurnPredictionOutput>(model);
 
@@ -58,8 +62,8 @@ public sealed class ChurnScoringService : IChurnScoringService
                 ScoredAtUtc = DateTime.UtcNow,
                 Probability = probability,
                 RiskLevel = GetRiskLevel(probability),
-                ModelVersion = "Current",
-                FeatureImportanceJson = "{}"
+                ModelVersion = report?.ModelVersion ?? "Current",
+                FeatureImportanceJson = featureImportanceJson
             }, cancellationToken);
 
             scored++;
