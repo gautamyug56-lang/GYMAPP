@@ -6,6 +6,8 @@ using Rackroom.Infrastructure.Data;
 using Rackroom.Infrastructure.Identity;
 using Rackroom.Infrastructure.Tenant;
 using Serilog;
+using QuestPDF.Infrastructure;
+using Rackroom.Infrastructure.Pdf;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,11 @@ builder.Services.AddScoped<ICurrentGymContext, CurrentGymContext>();
 builder.Services.AddScoped<IRackroomDataStore, RackroomDataStore>();
 builder.Services.AddScoped<IMemberManagementService, MemberManagementService>();
 builder.Services.AddScoped<IMembershipManagementService, MembershipManagementService>();
+builder.Services.AddScoped<IPaymentManagementService, PaymentManagementService>();
+builder.Services.AddScoped<IInvoicePdfGenerator, QuestPdfInvoiceGenerator>();
+builder.Services.AddScoped<IInvoicePdfStorage, FileInvoicePdfStorage>();
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
