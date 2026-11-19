@@ -1,0 +1,30 @@
+@page "{id:guid}"
+@model Rackroom.Web.Pages.Memberships.CancelModel
+@{
+    ViewData["Title"] = "Cancel Membership";
+}
+
+<div class="container py-4">
+    <div class="card border-danger" style="max-width: 700px;">
+        <div class="card-body">
+            <h1 class="h4 text-danger">Cancel Membership</h1>
+
+            <p>
+                This cancellation will take effect at the end of the member's paid period:
+                <strong>@Model.Membership?.EndDateUtc.ToString("yyyy-MM-dd")</strong>.
+            </p>
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Reason" class="form-label">Cancellation reason</label>
+                    <textarea asp-for="Reason" class="form-control" rows="4" required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-danger">Record Cancellation</button>
+                <a asp-page="./Index" class="btn btn-outline-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
