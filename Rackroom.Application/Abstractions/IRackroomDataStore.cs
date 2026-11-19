@@ -1,4 +1,5 @@
 using Rackroom.Domain.Entities;
+using Rackroom.Application.ML;
 
 namespace Rackroom.Application.Abstractions;
 
