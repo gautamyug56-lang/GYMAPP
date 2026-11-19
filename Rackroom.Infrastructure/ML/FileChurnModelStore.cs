@@ -8,9 +8,9 @@ public sealed class FileChurnModelStore : IChurnModelStore
 {
     private readonly string _root;
 
-    public FileChurnModelStore(IWebHostEnvironment environment)
+    public FileChurnModelStore(string contentRootPath)
     {
-        _root = Path.Combine(environment.ContentRootPath, "App_Data", "ml");
+        _root = Path.Combine(contentRootPath, "App_Data", "ml");
         Directory.CreateDirectory(_root);
     }
 
