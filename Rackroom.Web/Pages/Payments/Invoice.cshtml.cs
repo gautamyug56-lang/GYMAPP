@@ -6,7 +6,7 @@ using Rackroom.Application.Exceptions;
 
 namespace Rackroom.Web.Pages.Payments;
 
-[Authorize(Policy = "StaffOrAdmin")]
+[Authorize(Policy = "StaffOrAdminOrMember")]
 public class InvoiceModel : PageModel
 {
     private readonly ICurrentGymContext _currentGymContext;
@@ -29,6 +29,16 @@ public class InvoiceModel : PageModel
 
         if (invoiceNumber <= 0)
             return NotFound();
+
+        if (User.IsInRole("Member"))
+        {
+            Guid memberId = _gymContext.MemberId ?? Guid.Empty;
+            if (memberId == Guid.Empty ||
+                !await _dataStore.InvoiceBelongsToMemberAsync(gymId, invoiceNumber, memberId, cancellationToken))
+            {
+                return Forbid();
+            }
+        }
 
         byte[]? pdf = await _storage.ReadAsync(
             gymId,
