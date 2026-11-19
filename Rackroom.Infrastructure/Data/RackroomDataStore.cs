@@ -302,6 +302,56 @@ public sealed class RackroomDataStore : IRackroomDataStore
         return _db.SaveChangesAsync(cancellationToken);
     }
 
+    public Task<Membership?> GetMemberActiveMembershipAsync(Guid gymId, Guid memberId, DateTime atUtc, CancellationToken cancellationToken = default) =>
+        _db.Memberships.AsNoTracking().Include(x => x.MembershipPlan).Include(x => x.CancellationRecord)
+            .SingleOrDefaultAsync(x => x.GymId == gymId && x.MemberId == memberId && x.Status == MembershipStatus.Active && x.StartDateUtc <= atUtc && x.EndDateUtc > atUtc, cancellationToken);
+
+    public async Task<IReadOnlyList<Payment>> GetMemberPaymentsAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default) =>
+        await _db.Payments.AsNoTracking().Include(x => x.Membership).ThenInclude(x => x!.MembershipPlan).Where(x => x.GymId == gymId && x.MemberId == memberId).OrderByDescending(x => x.PaidAtUtc).ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<Invoice>> GetMemberInvoicesAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default) =>
+        await _db.Invoices.AsNoTracking().Include(x => x.Payment).Where(x => x.GymId == gymId && x.Payment!.MemberId == memberId).OrderByDescending(x => x.IssuedAtUtc).ToListAsync(cancellationToken);
+
+    public Task<WorkoutPlanAssignment?> GetActiveWorkoutPlanAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default) =>
+        _db.WorkoutPlanAssignments.AsNoTracking().Include(x => x.WorkoutPlanTemplate)
+            .SingleOrDefaultAsync(x => x.GymId == gymId && x.MemberId == memberId && x.IsActive, cancellationToken);
+
+    public async Task<IReadOnlyList<BodyMeasurement>> GetBodyMeasurementsAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default) =>
+        await _db.BodyMeasurements.AsNoTracking().Where(x => x.GymId == gymId && x.MemberId == memberId).OrderBy(x => x.RecordedAtUtc).ToListAsync(cancellationToken);
+
+    public Task<bool> HasMeasurementInCalendarMonthAsync(Guid gymId, Guid memberId, DateTime recordedAtUtc, CancellationToken cancellationToken = default)
+    {
+        DateTime start = new(recordedAtUtc.Year, recordedAtUtc.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        return _db.BodyMeasurements.AnyAsync(x => x.GymId == gymId && x.MemberId == memberId && x.RecordedAtUtc >= start && x.RecordedAtUtc < start.AddMonths(1), cancellationToken);
+    }
+
+    public Task AddBodyMeasurementAsync(BodyMeasurement measurement, CancellationToken cancellationToken = default) =>
+        _db.BodyMeasurements.AddAsync(measurement, cancellationToken).AsTask();
+
+    public async Task<IReadOnlyList<WorkoutPlanTemplate>> GetWorkoutPlanTemplatesAsync(Guid gymId, CancellationToken cancellationToken = default) =>
+        await _db.WorkoutPlanTemplates.AsNoTracking().Where(x => x.GymId == gymId).OrderBy(x => x.Name).ToListAsync(cancellationToken);
+
+    public Task<WorkoutPlanTemplate?> GetWorkoutPlanTemplateAsync(Guid gymId, Guid templateId, CancellationToken cancellationToken = default) =>
+        _db.WorkoutPlanTemplates.SingleOrDefaultAsync(x => x.GymId == gymId && x.Id == templateId, cancellationToken);
+
+    public Task<bool> WorkoutPlanTemplateNameExistsAsync(Guid gymId, string name, Guid? excludedTemplateId = null, CancellationToken cancellationToken = default) =>
+        _db.WorkoutPlanTemplates.AnyAsync(x => x.GymId == gymId && x.Name == name && (!excludedTemplateId.HasValue || x.Id != excludedTemplateId.Value), cancellationToken);
+
+    public Task AddWorkoutPlanTemplateAsync(WorkoutPlanTemplate template, CancellationToken cancellationToken = default) =>
+        _db.WorkoutPlanTemplates.AddAsync(template, cancellationToken).AsTask();
+
+    public Task<bool> MemberExistsAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default) =>
+        _db.Members.AnyAsync(x => x.GymId == gymId && x.Id == memberId && x.IsActive, cancellationToken);
+
+    public async Task EndActiveWorkoutPlanAssignmentsAsync(Guid gymId, Guid memberId, DateTime endedAtUtc, CancellationToken cancellationToken = default)
+    {
+        var assignments = await _db.WorkoutPlanAssignments.Where(x => x.GymId == gymId && x.MemberId == memberId && x.IsActive).ToListAsync(cancellationToken);
+        foreach (var assignment in assignments) { assignment.IsActive = false; assignment.EndedAtUtc = endedAtUtc; }
+    }
+
+    public Task AddWorkoutPlanAssignmentAsync(WorkoutPlanAssignment assignment, CancellationToken cancellationToken = default) =>
+        _db.WorkoutPlanAssignments.AddAsync(assignment, cancellationToken).AsTask();
+
     public Task<Membership?> GetActiveMembershipForMemberAsync(
         Guid gymId,
         Guid memberId,
