@@ -35,12 +35,7 @@ public class DeskModel : PageModel
         ExpiresAtUtc = DateTimeOffset.UtcNow.Add(QrLifetime);
 
         string token = _tokenService.CreateToken(gymId, ExpiresAtUtc);
-        string checkInUrl = Url.Page(
-            pageName: "/Attendance/CheckIn",
-            pageHandler: null,
-            values: new { token },
-            protocol: Request.Scheme,
-            host: Request.Host.ToString())!;
+        string checkInUrl = $"/Attendance/CheckIn?token={Uri.EscapeDataString(token)}";
 
         QrImageBase64 = Convert.ToBase64String(
             _qrCodeGenerator.GeneratePng(checkInUrl));
