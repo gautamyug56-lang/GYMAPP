@@ -13,6 +13,15 @@
             <a class="navbar-brand" asp-page="/Index">Rackroom</a>
             @if (User.Identity?.IsAuthenticated == true)
             {
+                @if (User.IsInRole("Staff") || User.IsInRole("Admin"))
+                {
+                    <div class="d-flex align-items-center gap-2 me-auto ms-3">
+                        <a asp-page="/Members/Index" class="btn btn-sm btn-outline-light">Members</a>
+                        <a asp-page="/Plans/Index" class="btn btn-sm btn-outline-light">Plans</a>
+                        <a asp-page="/Memberships/Index" class="btn btn-sm btn-outline-light">Memberships</a>
+                    </div>
+                }
+
                 <div class="d-flex align-items-center gap-3">
                     <span class="text-light">@User.Identity.Name</span>
                     <form method="post" asp-page="/Account/Logout">
