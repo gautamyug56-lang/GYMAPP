@@ -42,6 +42,8 @@ builder.Services.Configure<SmtpOptions>(
     builder.Configuration.GetSection("Smtp"));
 builder.Services.AddHostedService<ExpiryReminderBackgroundService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+builder.Services.AddScoped<IMemberPortalService, MemberPortalService>();
+builder.Services.AddScoped<IWorkoutPlanManagementService, WorkoutPlanManagementService>();
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -74,6 +76,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("StaffOrAdmin", policy => policy.RequireRole("Staff", "Admin"));
     options.AddPolicy("MemberOnly", policy => policy.RequireRole("Member"));
+    options.AddPolicy("StaffOrAdminOrMember", policy => policy.RequireRole("Staff", "Admin", "Member"));
 });
 
 builder.Services.AddRazorPages(options =>
