@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Rackroom.Application.Abstractions;
+using Rackroom.Application.Services;
 using Rackroom.Infrastructure.Data;
 using Rackroom.Infrastructure.Identity;
 using Rackroom.Infrastructure.Tenant;
@@ -21,6 +22,9 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentGymContext, CurrentGymContext>();
+builder.Services.AddScoped<IRackroomDataStore, RackroomDataStore>();
+builder.Services.AddScoped<IMemberManagementService, MemberManagementService>();
+builder.Services.AddScoped<IMembershipManagementService, MembershipManagementService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
