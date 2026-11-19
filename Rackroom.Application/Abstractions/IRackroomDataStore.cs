@@ -44,6 +44,9 @@ public interface IRackroomDataStore
     Task AddMembershipAsync(
         Membership membership,
         CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Membership>> GetMembershipsAsync(
+        Guid gymId,
+        CancellationToken cancellationToken = default);
 
     Task<MembershipPause?> GetMembershipPauseAsync(
         Guid gymId,
