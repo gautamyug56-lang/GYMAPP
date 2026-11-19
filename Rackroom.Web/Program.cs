@@ -54,7 +54,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddRazorPages(options =>
 {
-    options.Conventions.AuthorizePage("/Admin/Test");
+    options.Conventions.AuthorizePage("/Admin/Test", "AdminOnly");
 });
 
 var app = builder.Build();
