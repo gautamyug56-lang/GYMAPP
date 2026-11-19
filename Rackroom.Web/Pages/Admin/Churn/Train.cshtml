@@ -1,0 +1,16 @@
+@page
+@model Rackroom.Web.Pages.Admin.Churn.TrainModel
+@{ ViewData["Title"] = "Train Churn Model"; }
+<div class="container py-4"><h1 class="h3">Train churn model</h1>
+<p class="text-muted">Generates 3,000 synthetic records and compares SDCA Logistic Regression, FastTree and LightGBM.</p>
+<form method="post"><button class="btn btn-primary">Generate dataset and train</button></form>
+@if(Model.Result is not null)
+{
+<h2 class="h5 mt-4">Selected model: @Model.Result.ChosenTrainer</h2>
+<p>Training rows: @Model.Result.TrainingRows. Test rows: @Model.Result.TestRows.</p>
+<div class="table-responsive"><table class="table"><thead><tr><th>Trainer</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC</th><th>TP</th><th>FP</th><th>TN</th><th>FN</th></tr></thead><tbody>
+@foreach(var m in Model.Result.Metrics){<tr><td>@m.Trainer</td><td>@m.Precision.ToString("F3")</td><td>@m.Recall.ToString("F3")</td><td>@m.F1.ToString("F3")</td><td>@m.Auc.ToString("F3")</td><td>@m.TruePositive</td><td>@m.FalsePositive</td><td>@m.TrueNegative</td><td>@m.FalseNegative</td></tr>}
+</tbody></table></div>
+<h3 class="h6">Permutation feature importance</h3><ul>@foreach(var f in Model.Result.FeatureImportance){<li>@f.Feature: @f.Importance.ToString("F4")</li>}</ul>
+}
+</div>
