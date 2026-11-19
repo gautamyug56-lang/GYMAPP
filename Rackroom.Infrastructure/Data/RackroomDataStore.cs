@@ -477,6 +477,77 @@ public sealed class RackroomDataStore : IRackroomDataStore
     }
 
 
+    public async Task<IReadOnlyList<ChurnFeatureRow>> GetActiveChurnFeatureRowsAsync(Guid gymId, DateTime nowUtc, CancellationToken cancellationToken = default)
+    {
+        var memberships = await _db.Memberships.AsNoTracking()
+            .Include(x => x.Member)
+            .Include(x => x.MembershipPlan)
+            .Include(x => x.Pauses)
+            .Where(x => x.GymId == gymId && x.Status == MembershipStatus.Active && x.StartDateUtc <= nowUtc && x.EndDateUtc > nowUtc)
+            .ToListAsync(cancellationToken);
+
+        var memberIds = memberships.Select(x => x.MemberId).ToHashSet();
+        DateTime fourWeeksAgo = nowUtc.AddDays(-28);
+        DateTime twoWeeksAgo = nowUtc.AddDays(-14);
+        DateTime sixMonthsAgo = nowUtc.AddMonths(-6);
+
+        var attendance = await _db.Attendances.AsNoTracking()
+            .Where(x => x.GymId == gymId && memberIds.Contains(x.MemberId) && x.CheckedInAtUtc >= fourWeeksAgo && x.CheckedInAtUtc <= nowUtc)
+            .Select(x => new { x.MemberId, x.CheckedInAtUtc })
+            .ToListAsync(cancellationToken);
+
+        var payments = await _db.Payments.AsNoTracking()
+            .Where(x => x.GymId == gymId && memberIds.Contains(x.MemberId) && x.PaidAtUtc >= sixMonthsAgo && x.PaidAtUtc <= nowUtc)
+            .Select(x => new { x.MemberId, x.PaidAtUtc })
+            .ToListAsync(cancellationToken);
+
+        var result = new List<ChurnFeatureRow>();
+
+        foreach (var membership in memberships)
+        {
+            bool pausedNow = membership.Pauses.Any(x =>
+                x.Status == PauseStatus.Approved &&
+                x.StartDateUtc <= nowUtc &&
+                x.EndDateUtc >= nowUtc);
+
+            if (pausedNow)
+                continue;
+
+            var memberAttendance = attendance.Where(x => x.MemberId == membership.MemberId).ToList();
+            int recent = memberAttendance.Count(x => x.CheckedInAtUtc >= twoWeeksAgo);
+            int previous = memberAttendance.Count(x => x.CheckedInAtUtc < twoWeeksAgo);
+            float decline = previous == 0 ? 0f : MathF.Max(0f, (previous - recent) / (float)previous);
+            DateTime? lastVisit = memberAttendance.Count == 0 ? null : memberAttendance.Max(x => x.CheckedInAtUtc);
+
+            result.Add(new ChurnFeatureRow(
+                membership.MemberId,
+                memberAttendance.Count / 4f,
+                recent,
+                decline,
+                lastVisit.HasValue ? (float)Math.Max(0, (nowUtc - lastVisit.Value).TotalDays) : 60f,
+                (float)Math.Max(1, (nowUtc - membership.StartDateUtc).TotalDays / 30.4375),
+                membership.MembershipPlan?.DurationMonths ?? 1,
+                payments.Count(x => x.MemberId == membership.MemberId),
+                membership.Pauses.Count(x => x.Status == PauseStatus.Approved)));
+        }
+
+        return result;
+    }
+
+    public Task AddChurnPredictionAsync(ChurnPrediction prediction, CancellationToken cancellationToken = default) =>
+        _db.ChurnPredictions.AddAsync(prediction, cancellationToken).AsTask();
+
+    public async Task<IReadOnlyList<ChurnPrediction>> GetLatestChurnPredictionsAsync(Guid gymId, CancellationToken cancellationToken = default)
+    {
+        var predictions = await _db.ChurnPredictions.AsNoTracking()
+            .Include(x => x.Member)
+            .Where(x => x.GymId == gymId)
+            .OrderByDescending(x => x.ScoredAtUtc)
+            .ToListAsync(cancellationToken);
+
+        return predictions.GroupBy(x => x.MemberId).Select(x => x.First()).OrderByDescending(x => x.Probability).ToList();
+    }
+
     public async Task<IReadOnlyList<Guid>> GetGymIdsAsync(
         CancellationToken cancellationToken = default)
     {
