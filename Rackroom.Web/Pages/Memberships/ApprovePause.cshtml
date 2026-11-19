@@ -1,0 +1,37 @@
+@page "{id:guid}"
+@model Rackroom.Web.Pages.Memberships.ApprovePauseModel
+@{
+    ViewData["Title"] = "Approve Membership Pause";
+}
+
+<div class="container py-4">
+    <div class="card" style="max-width: 700px;">
+        <div class="card-body">
+            <h1 class="h4">Approve Membership Pause</h1>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <dl class="row mt-3">
+                <dt class="col-sm-4">Member</dt>
+                <dd class="col-sm-8">@Model.Membership?.Member?.FirstName @Model.Membership?.Member?.LastName</dd>
+
+                <dt class="col-sm-4">Start</dt>
+                <dd class="col-sm-8">@Model.Pause?.StartDateUtc.ToString("yyyy-MM-dd")</dd>
+
+                <dt class="col-sm-4">End</dt>
+                <dd class="col-sm-8">@Model.Pause?.EndDateUtc.ToString("yyyy-MM-dd")</dd>
+
+                <dt class="col-sm-4">Paused days</dt>
+                <dd class="col-sm-8">@Model.Pause?.PausedDays</dd>
+
+                <dt class="col-sm-4">Reason</dt>
+                <dd class="col-sm-8">@Model.Pause?.Reason</dd>
+            </dl>
+
+            <form method="post">
+                <button type="submit" class="btn btn-success">Approve Pause</button>
+                <a asp-page="./Index" class="btn btn-outline-secondary">Back</a>
+            </form>
+        </div>
+    </div>
+</div>
