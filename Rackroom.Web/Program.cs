@@ -46,7 +46,7 @@ builder.Services.AddHostedService<ExpiryReminderBackgroundService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<IMemberPortalService, MemberPortalService>();
 builder.Services.AddScoped<IWorkoutPlanManagementService, WorkoutPlanManagementService>();
-builder.Services.AddScoped<IChurnModelStore, FileChurnModelStore>();
+builder.Services.AddScoped<IChurnModelStore>(_ => new FileChurnModelStore(builder.Environment.ContentRootPath));
 builder.Services.AddScoped<IChurnModelTrainer, ChurnModelTrainer>();
 builder.Services.AddScoped<IChurnScoringService, ChurnScoringService>();
 builder.Services.AddHostedService<ChurnScoringBackgroundService>();
