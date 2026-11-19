@@ -45,16 +45,18 @@ public class DashboardModel : PageModel
             cancellationToken);
     }
 
-    public static string ToJson<T>(T value)
-    {
-        return JsonSerializer.Serialize(value, new JsonSerializerOptions
+    public int ExpiringPageCount => PageCount(Data.ExpiringMemberships.TotalCount, Data.ExpiringMemberships.PageSize);
+    public int PaymentDeadlinePageCount => PageCount(Data.PaymentDeadlines.TotalCount, Data.PaymentDeadlines.PageSize);
+    public int AttendancePageCount => PageCount(Data.TodaysAttendance.TotalCount, Data.TodaysAttendance.PageSize);
+    public string RevenueJson => ToJson(Data.RevenueChart);
+    public string NewMembersJson => ToJson(Data.NewMembersChart);
+
+    private static string ToJson<T>(T value) =>
+        JsonSerializer.Serialize(value, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
-    }
 
-    public static int PageCount(int totalCount, int pageSize)
-    {
-        return Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
-    }
+    private static int PageCount(int totalCount, int pageSize) =>
+        Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
 }
