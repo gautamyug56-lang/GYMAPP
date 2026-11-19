@@ -18,7 +18,14 @@ public class CustomUserClaimsPrincipalFactory
     protected override async Task<ClaimsIdentity> GenerateClaimsAsync(ApplicationUser user)
     {
         ClaimsIdentity identity = await base.GenerateClaimsAsync(user);
+
         identity.AddClaim(new Claim("GymId", user.GymId.ToString()));
+
+        if (user.MemberId.HasValue)
+        {
+            identity.AddClaim(new Claim("MemberId", user.MemberId.Value.ToString()));
+        }
+
         return identity;
     }
 }
