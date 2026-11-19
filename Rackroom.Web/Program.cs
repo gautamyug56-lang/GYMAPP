@@ -107,7 +107,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapRazorPages();
 
-await DbSeeder.SeedAsync(app.Services);
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    await DbSeeder.SeedAsync(app.Services);
+}
 
 app.Run();
 
