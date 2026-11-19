@@ -76,6 +76,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(x => x.Email).HasMaxLength(320).IsRequired();
 
             entity.HasIndex(x => x.GymId);
+            entity.HasIndex(x => new { x.GymId, x.IsActive });
             entity.HasIndex(x => new { x.GymId, x.Email }).IsUnique();
 
             entity.HasOne(x => x.Gym)
