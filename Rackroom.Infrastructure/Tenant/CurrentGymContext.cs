@@ -1,10 +1,9 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 using Rackroom.Application.Abstractions;
 
 namespace Rackroom.Infrastructure.Tenant;
 
-public class CurrentGymContext : ICurrentGymContext
+public sealed class CurrentGymContext : ICurrentGymContext
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -13,16 +12,12 @@ public class CurrentGymContext : ICurrentGymContext
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public Guid? GymId
-    {
-        get
-        {
-            string? value = _httpContextAccessor.HttpContext?
-                .User.FindFirstValue("GymId");
+    public Guid? GymId => ReadGuidClaim("GymId");
+    public Guid? MemberId => ReadGuidClaim("MemberId");
 
-            return Guid.TryParse(value, out Guid gymId)
-                ? gymId
-                : null;
-        }
+    private Guid? ReadGuidClaim(string type)
+    {
+        string? value = _httpContextAccessor.HttpContext?.User.FindFirstValue(type);
+        return Guid.TryParse(value, out Guid id) ? id : null;
     }
 }
