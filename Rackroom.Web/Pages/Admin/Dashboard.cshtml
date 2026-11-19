@@ -112,10 +112,7 @@
                             </table>
                         </div>
                         <partial name="_DashboardPagination"
-                                 model="new DashboardPaginationModel(
-                                     Model.ExpiringPage,
-                                     Model.ExpiringPageCount,
-                                     "expiringPage")" />
+                                 model="Model.ExpiringPagination" />
                     }
                 </div>
             </div>
@@ -153,10 +150,7 @@
                             </table>
                         </div>
                         <partial name="_DashboardPagination"
-                                 model="new DashboardPaginationModel(
-                                     Model.PaymentDeadlinePage,
-                                     Model.PaymentDeadlinePageCount,
-                                     "paymentDeadlinePage")" />
+                                 model="Model.PaymentDeadlinePagination" />
                     }
                 </div>
             </div>
@@ -194,10 +188,7 @@
                             </table>
                         </div>
                         <partial name="_DashboardPagination"
-                                 model="new DashboardPaginationModel(
-                                     Model.AttendancePage,
-                                     Model.AttendancePageCount,
-                                     "attendancePage")" />
+                                 model="Model.AttendancePagination" />
                     }
                 </div>
             </div>
