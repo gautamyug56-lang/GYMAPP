@@ -1,0 +1,12 @@
+@page
+@model Rackroom.Web.Pages.Admin.TestModel
+@{
+    ViewData["Title"] = "Admin Test";
+}
+<div class="container mt-4">
+    <h1>Admin Test Page</h1>
+    <div class="alert alert-success">
+        You are authenticated and can access this role-protected page.
+    </div>
+    <p>Current Gym ID: <strong>@Model.GymId</strong></p>
+</div>
