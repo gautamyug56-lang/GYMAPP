@@ -1,4 +1,5 @@
 using Microsoft.ML;
+using Microsoft.ML.Data;
 using Rackroom.Application.Exceptions;
 
 namespace Rackroom.Application.ML;
