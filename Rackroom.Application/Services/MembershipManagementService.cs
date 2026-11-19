@@ -193,6 +193,11 @@ public sealed class MembershipManagementService : IMembershipManagementService
             membershipId,
             cancellationToken);
 
+        if (membership.Status != MembershipStatus.Active)
+        {
+            throw new BusinessRuleException("Only an active membership can be paused.");
+        }
+
         ValidatePauseDates(startDateUtc, endDateUtc, membership);
 
         if (await _dataStore.HasOverlappingPauseAsync(
@@ -317,9 +322,9 @@ public sealed class MembershipManagementService : IMembershipManagementService
             throw new BusinessRuleException("This membership already has a cancellation request.");
         }
 
-        if (membership.Status == MembershipStatus.Cancelled)
+        if (membership.Status != MembershipStatus.Active)
         {
-            throw new BusinessRuleException("This membership is already cancelled.");
+            throw new BusinessRuleException("Only an active membership can be cancelled.");
         }
 
         CancellationRecord record = new()
