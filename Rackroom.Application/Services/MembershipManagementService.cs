@@ -21,6 +21,9 @@ public interface IMembershipManagementService
         DateTime startDateUtc,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<Membership>> GetMembershipsAsync(
+        CancellationToken cancellationToken = default);
+
     Task<MembershipPause> RequestPauseAsync(
         Guid membershipId,
         DateTime startDateUtc,
@@ -108,6 +111,12 @@ public sealed class MembershipManagementService : IMembershipManagementService
         CancellationToken cancellationToken = default)
     {
         return _dataStore.GetMembershipPlansAsync(GetGymId(), cancellationToken);
+    }
+
+    public Task<IReadOnlyList<Membership>> GetMembershipsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return _dataStore.GetMembershipsAsync(GetGymId(), cancellationToken);
     }
 
     public async Task<Membership> AssignMembershipAsync(
