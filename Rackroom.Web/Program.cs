@@ -10,6 +10,8 @@ using QuestPDF.Infrastructure;
 using Rackroom.Infrastructure.Pdf;
 using Rackroom.Infrastructure.Security;
 using Rackroom.Infrastructure.QrCode;
+using Rackroom.Infrastructure.Email;
+using Rackroom.Web.Background;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +37,11 @@ builder.Services.AddScoped<IInvoicePdfStorage, FileInvoicePdfStorage>();
 builder.Services.AddScoped<IAttendanceManagementService, AttendanceManagementService>();
 builder.Services.AddScoped<IAttendanceTokenService, AttendanceTokenService>();
 builder.Services.AddScoped<IQrCodeGenerator, QrCodeGeneratorService>();
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+builder.Services.Configure<SmtpOptions>(
+    builder.Configuration.GetSection("Smtp"));
+builder.Services.AddHostedService<ExpiryReminderBackgroundService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -72,6 +79,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizePage("/Admin/Test", "AdminOnly");
+    options.Conventions.AuthorizePage("/Admin/Dashboard", "AdminOnly");
 });
 
 var app = builder.Build();
