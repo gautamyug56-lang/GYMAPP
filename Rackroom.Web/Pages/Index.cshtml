@@ -1,0 +1,22 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+<div class="container mt-5">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <h1>Welcome to Rackroom</h1>
+        <p>You are logged in as <strong>@User.Identity.Name</strong>.</p>
+        <p>Role: <strong>@(User.IsInRole("Admin") ? "Admin" : User.IsInRole("Staff") ? "Staff" : "Member")</strong></p>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-page="/Admin/Test" class="btn btn-primary">Admin Test Page</a>
+        }
+    }
+    else
+    {
+        <h1>Welcome to Rackroom</h1>
+        <a asp-page="/Account/Login" class="btn btn-primary">Login</a>
+    }
+</div>
