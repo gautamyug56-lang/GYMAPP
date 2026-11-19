@@ -45,6 +45,14 @@ public static class DbSeeder
         await CreateUserAsync(userManager, "member@rackroom.local", "Member123!", "Member", gym.Id);
 
         Member member = await GetOrCreateMemberAsync(db, gym.Id);
+
+        ApplicationUser? memberUser = await userManager.FindByEmailAsync("member@rackroom.local");
+        if (memberUser is not null && memberUser.MemberId != member.Id)
+        {
+            memberUser.MemberId = member.Id;
+            await userManager.UpdateAsync(memberUser);
+        }
+
         MembershipPlan monthly = await GetOrCreatePlanAsync(db, gym.Id, "Monthly", 1, 3000m);
         MembershipPlan quarterly = await GetOrCreatePlanAsync(db, gym.Id, "3 Months", 3, 8000m);
         MembershipPlan annual = await GetOrCreatePlanAsync(db, gym.Id, "Annual", 12, 28000m);
