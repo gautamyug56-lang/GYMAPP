@@ -37,8 +37,8 @@
                 {
                     <h3 class="h6">@Model.Data.ActiveWorkoutPlan.WorkoutPlanTemplate.Name</h3>
                     <p>@Model.Data.ActiveWorkoutPlan.WorkoutPlanTemplate.Description</p>
-                    @{
-                        using var doc = JsonDocument.Parse(Model.Data.ActiveWorkoutPlan.WorkoutPlanTemplate.PlanJson);
+                    @using (JsonDocument doc = JsonDocument.Parse(Model.Data.ActiveWorkoutPlan.WorkoutPlanTemplate.PlanJson))
+                    {
                         if (doc.RootElement.TryGetProperty("days", out var days))
                         {
                             foreach (var day in days.EnumerateArray())
