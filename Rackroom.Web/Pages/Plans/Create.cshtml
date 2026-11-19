@@ -1,0 +1,38 @@
+@page
+@model Rackroom.Web.Pages.Plans.CreateModel
+@{
+    ViewData["Title"] = "Create Membership Plan";
+}
+
+<div class="container py-4">
+    <h1 class="h3">Create Membership Plan</h1>
+
+    <form method="post" class="mt-3" style="max-width: 600px;">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Input.Name" class="form-label">Plan name</label>
+            <input asp-for="Input.Name" class="form-control" placeholder="e.g. Monthly" />
+            <span asp-validation-for="Input.Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Input.DurationMonths" class="form-label">Duration</label>
+            <select asp-for="Input.DurationMonths" class="form-select">
+                <option value="1">1 month</option>
+                <option value="3">3 months</option>
+                <option value="12">12 months</option>
+            </select>
+            <span asp-validation-for="Input.DurationMonths" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Input.Price" class="form-label">Price (NPR)</label>
+            <input asp-for="Input.Price" class="form-control" type="number" min="0.01" step="0.01" />
+            <span asp-validation-for="Input.Price" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Plan</button>
+        <a asp-page="./Index" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div>
