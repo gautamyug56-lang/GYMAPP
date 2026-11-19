@@ -1,0 +1,8 @@
+**/bin/
+**/obj/
+.git/
+.github/
+.vscode/
+rackroom.db
+App_Data/invoices/
+App_Data/ml/
