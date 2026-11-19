@@ -1,0 +1,17 @@
+@page
+@model Rackroom.Web.Pages.Admin.Churn.IndexModel
+@{ ViewData["Title"] = "Churn Risk"; }
+<div class="container-fluid px-3 py-4">
+<h1 class="h3">Churn Risk</h1>
+<p class="text-muted">Latest model score for each active member. Members currently paused are excluded from scoring.</p>
+<div class="table-responsive"><table class="table table-hover align-middle">
+<thead><tr><th>Member</th><th>Risk</th><th>Probability</th><th>Scored</th><th>Drivers</th></tr></thead><tbody>
+@foreach(var p in Model.Predictions)
+{
+<tr><td>@p.Member?.FirstName @p.Member?.LastName</td>
+<td><span class="badge @(p.RiskLevel == "High" ? "bg-danger" : p.RiskLevel == "Medium" ? "bg-warning text-dark" : "bg-success")">@p.RiskLevel</span></td>
+<td>@p.Probability.ToString("P1")</td>
+<td>@p.ScoredAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+<td><small>@p.FeatureImportanceJson</small></td></tr>
+}
+</tbody></table></div></div>
