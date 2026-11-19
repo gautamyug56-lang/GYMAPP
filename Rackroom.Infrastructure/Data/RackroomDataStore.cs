@@ -24,17 +24,6 @@ public sealed class RackroomDataStore : IRackroomDataStore
                 cancellationToken);
     }
 
-    public Task<Member?> GetMemberByEmailAsync(
-        Guid gymId,
-        string email,
-        CancellationToken cancellationToken = default)
-    {
-        return _db.Members
-            .SingleOrDefaultAsync(
-                x => x.GymId == gymId && x.Email == email,
-                cancellationToken);
-    }
-
     public async Task<IReadOnlyList<Member>> SearchMembersAsync(
         Guid gymId,
         string? search,
