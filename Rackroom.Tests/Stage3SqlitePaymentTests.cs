@@ -133,5 +133,6 @@ public class Stage3SqlitePaymentTests
     private sealed class TestGymContext(Guid gymId) : ICurrentGymContext
     {
         public Guid? GymId => gymId;
+        public Guid? MemberId => null;
     }
 }
