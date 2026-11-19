@@ -47,7 +47,7 @@ public class CreateModel : PageModel
             await _membershipService.AssignMembershipAsync(
                 Input.MemberId,
                 Input.MembershipPlanId,
-                Input.StartDateUtc,
+                DateTime.SpecifyKind(Input.StartDateUtc.Date, DateTimeKind.Utc),
                 cancellationToken);
         }
         catch (BusinessRuleException exception)
