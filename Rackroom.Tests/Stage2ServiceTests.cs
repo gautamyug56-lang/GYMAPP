@@ -336,6 +336,103 @@ public class Stage2ServiceTests
     }
 
     [Fact]
+    public async Task Request_pause_rejects_overlapping_pause()
+    {
+        Membership membership = CreateMembership(
+            new DateTime(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(2027, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+
+        var store = new Mock<IRackroomDataStore>();
+        store.Setup(x => x.GetMembershipAsync(
+                GymId,
+                MembershipId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(membership);
+        store.Setup(x => x.HasOverlappingPauseAsync(
+                GymId,
+                MembershipId,
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var service = new MembershipManagementService(
+            CreateGymContext().Object,
+            store.Object);
+
+        BusinessRuleException exception = await Assert.ThrowsAsync<BusinessRuleException>(
+            () => service.RequestPauseAsync(
+                MembershipId,
+                new DateTime(2026, 11, 10, 0, 0, 0, DateTimeKind.Utc),
+                new DateTime(2026, 11, 19, 0, 0, 0, DateTimeKind.Utc),
+                "Travel"));
+
+        Assert.Equal("The requested pause overlaps another pause.", exception.Message);
+    }
+
+    [Fact]
+    public async Task Assign_membership_rejects_inactive_member()
+    {
+        Member member = CreateMember();
+        member.IsActive = false;
+
+        var store = new Mock<IRackroomDataStore>();
+        store.Setup(x => x.GetMemberAsync(
+                GymId,
+                MemberId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(member);
+
+        var service = new MembershipManagementService(
+            CreateGymContext().Object,
+            store.Object);
+
+        BusinessRuleException exception = await Assert.ThrowsAsync<BusinessRuleException>(
+            () => service.AssignMembershipAsync(
+                MemberId,
+                PlanId,
+                new DateTime(2026, 11, 20, 0, 0, 0, DateTimeKind.Utc)));
+
+        Assert.Equal(
+            "An inactive member cannot receive a new membership.",
+            exception.Message);
+    }
+
+    [Fact]
+    public async Task Cancel_membership_rejects_duplicate_cancellation()
+    {
+        Membership membership = CreateMembership(
+            new DateTime(2026, 11, 20, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(2027, 2, 20, 0, 0, 0, DateTimeKind.Utc));
+
+        var store = new Mock<IRackroomDataStore>();
+        store.Setup(x => x.GetMembershipAsync(
+                GymId,
+                MembershipId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(membership);
+        store.Setup(x => x.CancellationExistsAsync(
+                GymId,
+                MembershipId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var service = new MembershipManagementService(
+            CreateGymContext().Object,
+            store.Object);
+
+        BusinessRuleException exception = await Assert.ThrowsAsync<BusinessRuleException>(
+            () => service.CancelMembershipAsync(
+                MembershipId,
+                "Moving away",
+                new DateTime(2026, 11, 25, 0, 0, 0, DateTimeKind.Utc)));
+
+        Assert.Equal(
+            "This membership already has a cancellation request.",
+            exception.Message);
+    }
+
+    [Fact]
     public async Task Cancel_membership_effective_date_is_end_of_paid_period()
     {
         DateTime endDate = new(2027, 2, 20, 0, 0, 0, DateTimeKind.Utc);
