@@ -144,7 +144,7 @@ public sealed class ChurnModelTrainer : IChurnModelTrainer
             modelVersion,
             results,
             featureImportance,
-            (int)(split.TrainSet.GetRowCount() ?? 0),
+            rows.Count - (int)(split.TestSet.GetRowCount() ?? 0),
             (int)(split.TestSet.GetRowCount() ?? 0),
             "Synthetic data generated deterministically from documented assumptions. No real member data was used.");
 
