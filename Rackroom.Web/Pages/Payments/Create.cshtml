@@ -1,0 +1,67 @@
+@page
+@model Rackroom.Web.Pages.Payments.CreateModel
+@{
+    ViewData["Title"] = "Record Payment";
+}
+
+<div class="container py-4">
+    <h1 class="h3">Record Payment</h1>
+
+    <form method="post" class="mt-3" style="max-width: 700px;">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Input.MembershipId" class="form-label">Membership</label>
+            <select asp-for="Input.MembershipId" class="form-select">
+                <option value="">Select a membership</option>
+                @foreach (var membership in Model.Memberships)
+                {
+                    <option value="@membership.Id">
+                        @membership.Member?.FirstName @membership.Member?.LastName —
+                        @membership.MembershipPlan?.Name —
+                        expires @membership.EndDateUtc.ToString("yyyy-MM-dd")
+                    </option>
+                }
+            </select>
+            <span asp-validation-for="Input.MembershipId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Input.Amount" class="form-label">Amount (NPR)</label>
+            <input asp-for="Input.Amount" class="form-control" type="number" min="0.01" step="0.01" />
+            <span asp-validation-for="Input.Amount" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Input.PaidAtUtc" class="form-label">Payment date</label>
+            <input asp-for="Input.PaidAtUtc" class="form-control" type="date" />
+            <span asp-validation-for="Input.PaidAtUtc" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Input.Method" class="form-label">Payment method</label>
+            <select asp-for="Input.Method" asp-items="Html.GetEnumSelectList<PaymentMethod>()"
+                    class="form-select"></select>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Input.Reference" class="form-label">Reference</label>
+            <input asp-for="Input.Reference" class="form-control"
+                   placeholder="Bank transfer reference, eSewa ID, etc." />
+            <span asp-validation-for="Input.Reference" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Input.Notes" class="form-label">Notes</label>
+            <textarea asp-for="Input.Notes" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Input.Notes" class="text-danger"></span>
+        </div>
+
+        <div class="alert alert-info">
+            Saving the payment creates the next invoice number for this gym and generates a PDF invoice.
+        </div>
+
+        <button type="submit" class="btn btn-primary">Record Payment</button>
+        <a asp-page="./Index" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div>
