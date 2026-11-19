@@ -1,0 +1,39 @@
+@page
+@model Rackroom.Web.Pages.Attendance.DeskModel
+@{
+    ViewData["Title"] = "Attendance QR Desk";
+}
+
+<div class="container py-4 text-center">
+    <div class="mb-4">
+        <h1 class="h3">Attendance QR Desk</h1>
+        <p class="text-muted mb-1">Members scan this QR code from their phones to check in.</p>
+        <p class="small text-muted">The QR code rotates every 30 seconds.</p>
+    </div>
+
+    <div class="card shadow-sm mx-auto" style="max-width: 480px;">
+        <div class="card-body">
+            <img src="data:image/png;base64,@Model.QrImageBase64"
+                 alt="Rotating Rackroom attendance QR code"
+                 class="img-fluid"
+                 style="max-width: 360px;" />
+
+            <div class="mt-3">
+                <span class="badge text-bg-dark">
+                    Expires at @Model.ExpiresAtUtc.ToLocalTime().ToString("HH:mm:ss")
+                </span>
+            </div>
+
+            <div class="mt-4">
+                <a asp-page="/Attendance/Index" class="btn btn-outline-secondary">Attendance History</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Refresh before the current QR token expires.
+    setTimeout(() => window.location.reload(), 20000);
+</script>
+}
