@@ -1,0 +1,50 @@
+@page
+@model Rackroom.Web.Pages.Memberships.CreateModel
+@{
+    ViewData["Title"] = "Assign Membership";
+}
+
+<div class="container py-4">
+    <h1 class="h3">Assign Membership</h1>
+
+    <form method="post" class="mt-3" style="max-width: 700px;">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Input.MemberId" class="form-label">Member</label>
+            <select asp-for="Input.MemberId" class="form-select">
+                <option value="">Select a member</option>
+                @foreach (var member in Model.Members)
+                {
+                    <option value="@member.Id">@member.FirstName @member.LastName — @member.Email</option>
+                }
+            </select>
+            <span asp-validation-for="Input.MemberId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Input.MembershipPlanId" class="form-label">Membership plan</label>
+            <select asp-for="Input.MembershipPlanId" class="form-select">
+                <option value="">Select a plan</option>
+                @foreach (var plan in Model.Plans)
+                {
+                    <option value="@plan.Id">@plan.Name — NPR @plan.Price.ToString("N2")</option>
+                }
+            </select>
+            <span asp-validation-for="Input.MembershipPlanId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Input.StartDateUtc" class="form-label">Start date</label>
+            <input asp-for="Input.StartDateUtc" class="form-control" type="date" />
+            <span asp-validation-for="Input.StartDateUtc" class="text-danger"></span>
+        </div>
+
+        <div class="alert alert-info">
+            The expiry date is calculated automatically from the selected plan duration.
+        </div>
+
+        <button type="submit" class="btn btn-primary">Assign Membership</button>
+        <a asp-page="./Index" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div>
