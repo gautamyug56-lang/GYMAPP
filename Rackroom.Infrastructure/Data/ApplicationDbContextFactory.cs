@@ -24,5 +24,6 @@ public sealed class ApplicationDbContextFactory
     private sealed class DesignTimeCurrentGymContext : ICurrentGymContext
     {
         public Guid? GymId => null;
+        public Guid? MemberId => null;
     }
 }
