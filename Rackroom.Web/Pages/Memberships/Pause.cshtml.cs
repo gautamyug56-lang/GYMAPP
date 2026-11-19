@@ -26,11 +26,9 @@ public class PauseModel : PageModel
         Guid id,
         CancellationToken cancellationToken)
     {
-        Membership? membership = await _membershipService
-            .GetMembershipsAsync(cancellationToken)
-            .ContinueWith(
-                task => task.Result.SingleOrDefault(x => x.Id == id),
-                cancellationToken);
+        IReadOnlyList<Membership> memberships =
+            await _membershipService.GetMembershipsAsync(cancellationToken);
+        Membership? membership = memberships.SingleOrDefault(x => x.Id == id);
 
         if (membership is null)
         {
