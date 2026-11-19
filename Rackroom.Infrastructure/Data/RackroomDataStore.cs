@@ -424,6 +424,15 @@ public sealed class RackroomDataStore : IRackroomDataStore
     }
 
 
+    public async Task<IReadOnlyList<Guid>> GetGymIdsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _db.Gyms
+            .AsNoTracking()
+            .Select(x => x.Id)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Membership>> GetMembershipsForExpiryReminderAsync(
         Guid gymId,
         DateTime nowUtc,
