@@ -301,8 +301,6 @@ public sealed class RackroomDataStore : IRackroomDataStore
     {
         return _db.SaveChangesAsync(cancellationToken);
     }
-}
-
 
     public Task<Membership?> GetActiveMembershipForMemberAsync(
         Guid gymId,
@@ -423,4 +421,218 @@ public sealed class RackroomDataStore : IRackroomDataStore
             currentMonthCheckIns,
             last30DaysCheckIns,
             distinctDaysVisited);
+    }
+
+
+    // Stage 5 dashboard queries
+
+    public async Task<DashboardMetricsData> GetDashboardMetricsAsync(
+        Guid gymId,
+        DateTime monthStartUtc,
+        DateTime nextMonthStartUtc,
+        DateTime nowUtc,
+        DateTime tomorrowUtc,
+        DateTime expiryWindowEndUtc,
+        DateTime paymentDeadlineEndUtc,
+        CancellationToken cancellationToken = default)
+    {
+        decimal revenue = await _db.Payments
+            .Where(x => x.GymId == gymId &&
+                        x.PaidAtUtc >= monthStartUtc &&
+                        x.PaidAtUtc < nextMonthStartUtc)
+            .SumAsync(x => x.Amount, cancellationToken);
+
+        int newMembers = await _db.Members
+            .CountAsync(x => x.GymId == gymId &&
+                             x.CreatedAtUtc >= monthStartUtc &&
+                             x.CreatedAtUtc < nextMonthStartUtc,
+                cancellationToken);
+
+        int expiring = await _db.Memberships
+            .CountAsync(x => x.GymId == gymId &&
+                             x.Status == MembershipStatus.Active &&
+                             x.EndDateUtc >= nowUtc &&
+                             x.EndDateUtc < expiryWindowEndUtc,
+                cancellationToken);
+
+        int paymentDeadlines = await _db.Memberships
+            .CountAsync(x => x.GymId == gymId &&
+                             x.Status == MembershipStatus.Active &&
+                             x.EndDateUtc >= nowUtc &&
+                             x.EndDateUtc < paymentDeadlineEndUtc,
+                cancellationToken);
+
+        int todaysAttendance = await _db.Attendances
+            .CountAsync(x => x.GymId == gymId &&
+                             x.CheckedInAtUtc >= monthStartUtc.Date &&
+                             x.CheckedInAtUtc < tomorrowUtc,
+                cancellationToken);
+
+        return new DashboardMetricsData(
+            revenue,
+            newMembers,
+            expiring,
+            paymentDeadlines,
+            todaysAttendance);
+    }
+
+    public async Task<IReadOnlyList<DashboardChartPoint>> GetRevenueByMonthAsync(
+        Guid gymId,
+        DateTime firstMonthStartUtc,
+        DateTime nextMonthStartUtc,
+        CancellationToken cancellationToken = default)
+    {
+        var payments = await _db.Payments
+            .AsNoTracking()
+            .Where(x => x.GymId == gymId &&
+                        x.PaidAtUtc >= firstMonthStartUtc &&
+                        x.PaidAtUtc < nextMonthStartUtc)
+            .Select(x => new { x.PaidAtUtc, x.Amount })
+            .ToListAsync(cancellationToken);
+
+        return payments
+            .GroupBy(x => new { x.PaidAtUtc.Year, x.PaidAtUtc.Month })
+            .Select(group => new DashboardChartPoint(
+                new DateTime(group.Key.Year, group.Key.Month, 1, 0, 0, 0, DateTimeKind.Utc)
+                    .ToString("yyyy-MM"),
+                group.Sum(x => x.Amount)))
+            .OrderBy(x => x.Label)
+            .ToList();
+    }
+
+    public async Task<IReadOnlyList<DashboardChartPoint>> GetNewMembersByMonthAsync(
+        Guid gymId,
+        DateTime firstMonthStartUtc,
+        DateTime nextMonthStartUtc,
+        CancellationToken cancellationToken = default)
+    {
+        var members = await _db.Members
+            .AsNoTracking()
+            .Where(x => x.GymId == gymId &&
+                        x.CreatedAtUtc >= firstMonthStartUtc &&
+                        x.CreatedAtUtc < nextMonthStartUtc)
+            .Select(x => x.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+
+        return members
+            .GroupBy(x => new { x.Year, x.Month })
+            .Select(group => new DashboardChartPoint(
+                new DateTime(group.Key.Year, group.Key.Month, 1, 0, 0, 0, DateTimeKind.Utc)
+                    .ToString("yyyy-MM"),
+                group.Count()))
+            .OrderBy(x => x.Label)
+            .ToList();
+    }
+
+    public async Task<DashboardPageData<DashboardMembershipRow>> GetExpiringMembershipsAsync(
+        Guid gymId,
+        DateTime nowUtc,
+        DateTime endUtc,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<Membership> query = _db.Memberships
+            .AsNoTracking()
+            .Include(x => x.Member)
+            .Include(x => x.MembershipPlan)
+            .Where(x => x.GymId == gymId &&
+                        x.Status == MembershipStatus.Active &&
+                        x.EndDateUtc >= nowUtc &&
+                        x.EndDateUtc < endUtc);
+
+        int totalCount = await query.CountAsync(cancellationToken);
+
+        List<DashboardMembershipRow> items = await query
+            .OrderBy(x => x.EndDateUtc)
+            .ThenBy(x => x.Member!.FirstName)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new DashboardMembershipRow(
+                x.Id,
+                x.Member!.FirstName + " " + x.Member.LastName,
+                x.Member.Email,
+                x.MembershipPlan!.Name,
+                x.EndDateUtc))
+            .ToListAsync(cancellationToken);
+
+        return new DashboardPageData<DashboardMembershipRow>(
+            items,
+            totalCount,
+            page,
+            pageSize);
+    }
+
+    public async Task<DashboardPageData<DashboardMembershipRow>> GetPaymentDeadlinesAsync(
+        Guid gymId,
+        DateTime nowUtc,
+        DateTime endUtc,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<Membership> query = _db.Memberships
+            .AsNoTracking()
+            .Include(x => x.Member)
+            .Include(x => x.MembershipPlan)
+            .Where(x => x.GymId == gymId &&
+                        x.Status == MembershipStatus.Active &&
+                        x.EndDateUtc >= nowUtc &&
+                        x.EndDateUtc < endUtc);
+
+        int totalCount = await query.CountAsync(cancellationToken);
+
+        List<DashboardMembershipRow> items = await query
+            .OrderBy(x => x.EndDateUtc)
+            .ThenBy(x => x.Member!.FirstName)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new DashboardMembershipRow(
+                x.Id,
+                x.Member!.FirstName + " " + x.Member.LastName,
+                x.Member.Email,
+                x.MembershipPlan!.Name,
+                x.EndDateUtc))
+            .ToListAsync(cancellationToken);
+
+        return new DashboardPageData<DashboardMembershipRow>(
+            items,
+            totalCount,
+            page,
+            pageSize);
+    }
+
+    public async Task<DashboardPageData<DashboardAttendanceRow>> GetTodaysAttendanceAsync(
+        Guid gymId,
+        DateTime todayStartUtc,
+        DateTime tomorrowUtc,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<Attendance> query = _db.Attendances
+            .AsNoTracking()
+            .Include(x => x.Member)
+            .Where(x => x.GymId == gymId &&
+                        x.CheckedInAtUtc >= todayStartUtc &&
+                        x.CheckedInAtUtc < tomorrowUtc);
+
+        int totalCount = await query.CountAsync(cancellationToken);
+
+        List<DashboardAttendanceRow> items = await query
+            .OrderByDescending(x => x.CheckedInAtUtc)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new DashboardAttendanceRow(
+                x.Id,
+                x.Member!.FirstName + " " + x.Member.LastName,
+                x.CheckedInAtUtc,
+                x.Source))
+            .ToListAsync(cancellationToken);
+
+        return new DashboardPageData<DashboardAttendanceRow>(
+            items,
+            totalCount,
+            page,
+            pageSize);
     }
