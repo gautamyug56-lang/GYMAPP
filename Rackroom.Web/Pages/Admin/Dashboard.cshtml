@@ -114,7 +114,7 @@
                         <partial name="_DashboardPagination"
                                  model="new DashboardPaginationModel(
                                      Model.ExpiringPage,
-                                     Model.PageCount(Model.Data.ExpiringMemberships.TotalCount, Model.Data.ExpiringMemberships.PageSize),
+                                     Model.ExpiringPageCount,
                                      "expiringPage")" />
                     }
                 </div>
@@ -155,7 +155,7 @@
                         <partial name="_DashboardPagination"
                                  model="new DashboardPaginationModel(
                                      Model.PaymentDeadlinePage,
-                                     Model.PageCount(Model.Data.PaymentDeadlines.TotalCount, Model.Data.PaymentDeadlines.PageSize),
+                                     Model.PaymentDeadlinePageCount,
                                      "paymentDeadlinePage")" />
                     }
                 </div>
@@ -196,7 +196,7 @@
                         <partial name="_DashboardPagination"
                                  model="new DashboardPaginationModel(
                                      Model.AttendancePage,
-                                     Model.PageCount(Model.Data.TodaysAttendance.TotalCount, Model.Data.TodaysAttendance.PageSize),
+                                     Model.AttendancePageCount,
                                      "attendancePage")" />
                     }
                 </div>
@@ -208,8 +208,8 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.6.1/dist/chart.umd.min.js"></script>
     <script>
-        const revenue = @Html.Raw(Model.ToJson(Model.Data.RevenueChart));
-        const newMembers = @Html.Raw(Model.ToJson(Model.Data.NewMembersChart));
+        const revenue = @Html.Raw(Model.RevenueJson);
+        const newMembers = @Html.Raw(Model.NewMembersJson);
 
         new Chart(document.getElementById("revenueChart"), {
             type: "line",
