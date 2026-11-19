@@ -82,7 +82,7 @@ public sealed class ChurnModelTrainer : IChurnModelTrainer
 
             ITransformer model = trainer.Estimator.Fit(split.TrainSet);
             IDataView predictions = model.Transform(split.TestSet);
-            CalibratedBinaryClassificationMetrics metrics =
+            BinaryClassificationMetrics metrics =
                 ml.BinaryClassification.Evaluate(predictions, labelColumnName: "Label");
 
             var confusion = metrics.ConfusionMatrix.Counts;
@@ -125,7 +125,7 @@ public sealed class ChurnModelTrainer : IChurnModelTrainer
             importance
                 .Select((metric, index) => new ChurnFeatureImportance(
                     FeatureColumns[index],
-                    Math.Abs(metric.AreaUnderRocCurve.Mean)))
+                    Math.Abs(metric.Value.AreaUnderRocCurve.Mean)))
                 .OrderByDescending(x => x.Importance)
                 .ToList();
 
@@ -143,8 +143,8 @@ public sealed class ChurnModelTrainer : IChurnModelTrainer
             modelVersion,
             results,
             featureImportance,
-            split.TrainSet.GetRowCount() ?? 0,
-            split.TestSet.GetRowCount() ?? 0,
+            (int)(split.TrainSet.GetRowCount() ?? 0),
+            (int)(split.TestSet.GetRowCount() ?? 0),
             "Synthetic data generated deterministically from documented assumptions. No real member data was used.");
 
         await _modelStore.SaveReportAsync(trainingResult, cancellationToken);
