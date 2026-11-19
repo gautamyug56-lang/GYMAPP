@@ -491,7 +491,7 @@ public sealed class RackroomDataStore : IRackroomDataStore
 
         int todaysAttendance = await _db.Attendances
             .CountAsync(x => x.GymId == gymId &&
-                             x.CheckedInAtUtc >= monthStartUtc.Date &&
+                             x.CheckedInAtUtc >= nowUtc.Date &&
                              x.CheckedInAtUtc < tomorrowUtc,
                 cancellationToken);
 
