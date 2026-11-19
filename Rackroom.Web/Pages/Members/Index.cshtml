@@ -1,0 +1,76 @@
+@page
+@model Rackroom.Web.Pages.Members.IndexModel
+@{
+    ViewData["Title"] = "Members";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h3 mb-1">Members</h1>
+            <p class="text-muted mb-0">Search, edit, and deactivate gym members.</p>
+        </div>
+        <a asp-page="./Create" class="btn btn-primary">Add Member</a>
+    </div>
+
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-md-8">
+            <label for="search" class="visually-hidden">Search members</label>
+            <input id="search" name="Search" value="@Model.Search" class="form-control"
+                   placeholder="Search by name or email" />
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-outline-primary w-100" type="submit">Search</button>
+        </div>
+        <div class="col-md-2">
+            <a asp-page="./Index" class="btn btn-outline-secondary w-100">Clear</a>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var member in Model.Members)
+            {
+                <tr>
+                    <td>@member.FirstName @member.LastName</td>
+                    <td>@member.Email</td>
+                    <td>
+                        @if (member.IsActive)
+                        {
+                            <span class="badge text-bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-secondary">Inactive</span>
+                        }
+                    </td>
+                    <td>@member.CreatedAtUtc.ToString("yyyy-MM-dd")</td>
+                    <td class="text-end">
+                        <a asp-page="./Edit" asp-route-id="@member.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                        @if (member.IsActive)
+                        {
+                            <a asp-page="./Deactivate" asp-route-id="@member.Id"
+                               class="btn btn-sm btn-outline-danger">Deactivate</a>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.Members.Count == 0)
+    {
+        <div class="alert alert-info">No members matched your search.</div>
+    }
+</div>
