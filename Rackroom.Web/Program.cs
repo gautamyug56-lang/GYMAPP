@@ -12,6 +12,8 @@ using Rackroom.Infrastructure.Security;
 using Rackroom.Infrastructure.QrCode;
 using Rackroom.Infrastructure.Email;
 using Rackroom.Web.Background;
+using Rackroom.Application.ML;
+using Rackroom.Infrastructure.ML;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +46,10 @@ builder.Services.AddHostedService<ExpiryReminderBackgroundService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<IMemberPortalService, MemberPortalService>();
 builder.Services.AddScoped<IWorkoutPlanManagementService, WorkoutPlanManagementService>();
+builder.Services.AddScoped<IChurnModelStore, FileChurnModelStore>();
+builder.Services.AddScoped<IChurnModelTrainer, ChurnModelTrainer>();
+builder.Services.AddScoped<IChurnScoringService, ChurnScoringService>();
+builder.Services.AddHostedService<ChurnScoringBackgroundService>();
 
 QuestPDF.Settings.License = LicenseType.Community;
 
