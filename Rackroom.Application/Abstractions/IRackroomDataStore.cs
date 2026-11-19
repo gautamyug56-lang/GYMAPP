@@ -90,6 +90,7 @@ public interface IRackroomDataStore
     Task<Membership?> GetMemberActiveMembershipAsync(Guid gymId, Guid memberId, DateTime atUtc, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Payment>> GetMemberPaymentsAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Invoice>> GetMemberInvoicesAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default);
+    Task<bool> InvoiceBelongsToMemberAsync(Guid gymId, int invoiceNumber, Guid memberId, CancellationToken cancellationToken = default);
     Task<WorkoutPlanAssignment?> GetActiveWorkoutPlanAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<BodyMeasurement>> GetBodyMeasurementsAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default);
     Task<bool> HasMeasurementInCalendarMonthAsync(Guid gymId, Guid memberId, DateTime recordedAtUtc, CancellationToken cancellationToken = default);
