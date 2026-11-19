@@ -53,14 +53,23 @@ public sealed class SyntheticChurnDatasetGenerator
             });
         }
 
-        // Keep the synthetic dataset approximately balanced so the evaluation
-        // does not become dominated by the majority class.
+        // Keep the synthetic dataset approximately balanced without recursive
+        // regeneration. This makes the generator deterministic and prevents
+        // pathological seeds from causing unbounded recursion.
+        int targetPositives = (int)Math.Round(rowCount * 0.40);
         int positives = rows.Count(x => x.Label);
-        int negatives = rows.Count - positives;
 
-        if (positives < rowCount * 0.30 || negatives < rowCount * 0.30)
+        if (positives < rowCount * 0.30)
         {
-            return Generate(rowCount, seed + 1);
+            int needed = targetPositives - positives;
+            foreach (ChurnData row in rows.Where(x => !x.Label).Take(needed))
+                row.Label = true;
+        }
+        else if (positives > rowCount * 0.70)
+        {
+            int needed = positives - (rowCount - targetPositives);
+            foreach (ChurnData row in rows.Where(x => x.Label).Take(needed))
+                row.Label = false;
         }
 
         return rows;
