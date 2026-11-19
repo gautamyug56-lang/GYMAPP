@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Rackroom.Application.Abstractions;
 using Rackroom.Domain.Entities;
+using Rackroom.Application.ML;
 
 namespace Rackroom.Infrastructure.Data;
 
