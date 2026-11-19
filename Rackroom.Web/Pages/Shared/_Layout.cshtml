@@ -23,6 +23,8 @@
                         <a asp-page="/MemberPortal/Index" class="btn btn-sm btn-outline-light">My Portal</a>
                         <a asp-page="/Attendance/Index" class="btn btn-sm btn-outline-light">Attendance</a>
                         <a asp-page="/Admin/Dashboard" class="btn btn-sm btn-outline-light">Dashboard</a>
+                        <a asp-page="/Admin/Churn/Index" class="btn btn-sm btn-outline-light">Churn Risk</a>
+                        <a asp-page="/Admin/Churn/Train" class="btn btn-sm btn-outline-light">Train Churn</a>
                     </div>
                 }
                 else if (User.IsInRole("Member"))
