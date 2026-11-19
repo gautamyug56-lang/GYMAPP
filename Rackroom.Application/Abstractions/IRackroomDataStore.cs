@@ -5,7 +5,6 @@ namespace Rackroom.Application.Abstractions;
 public interface IRackroomDataStore
 {
     Task<Member?> GetMemberAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default);
-    Task<Member?> GetMemberByEmailAsync(Guid gymId, string email, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Member>> SearchMembersAsync(Guid gymId, string? search, CancellationToken cancellationToken = default);
     Task<bool> MemberEmailExistsAsync(Guid gymId, string email, Guid? excludedMemberId = null, CancellationToken cancellationToken = default);
     Task AddMemberAsync(Member member, CancellationToken cancellationToken = default);
