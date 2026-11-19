@@ -78,6 +78,10 @@ public interface IRackroomDataStore
         int pageSize,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<ChurnFeatureRow>> GetActiveChurnFeatureRowsAsync(Guid gymId, DateTime nowUtc, CancellationToken cancellationToken = default);
+    Task AddChurnPredictionAsync(ChurnPrediction prediction, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ChurnPrediction>> GetLatestChurnPredictionsAsync(Guid gymId, CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<Guid>> GetGymIdsAsync(CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Membership>> GetMembershipsForExpiryReminderAsync(
