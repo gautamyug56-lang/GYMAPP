@@ -256,4 +256,8 @@ The workflow:
 
 ## Project status
 
-Stages 0–8 are implemented in the repository. The local .NET SDK is required to perform the final build/test verification and generate any pending EF migrations.
+Stages 0–8 are implemented in the repository.
+
+GitHub Actions currently reports a successful Release build and test run. The latest CI run completed with all 38 tests passing.
+
+The local .NET SDK is still required to run the application locally and generate any pending EF migrations.
