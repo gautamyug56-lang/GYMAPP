@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\\Rackroom.Application\\Rackroom.Application.csproj" />
-    <ProjectReference Include="..\\Rackroom.Domain\\Rackroom.Domain.csproj" />
+    <ProjectReference Include="..\Rackroom.Application\Rackroom.Application.csproj" />
+    <ProjectReference Include="..\Rackroom.Domain\Rackroom.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,5 +19,6 @@
     </PackageReference>
     <PackageReference Include="Serilog.AspNetCore" Version="11.0.0" />
     <PackageReference Include="QuestPDF" Version="2026.9.2" />
+    <PackageReference Include="QRCoder" Version="1.8.1" />
   </ItemGroup>
 </Project>
