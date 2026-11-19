@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Hosting;
 using Rackroom.Application.Abstractions;
 
 namespace Rackroom.Infrastructure.Pdf;
