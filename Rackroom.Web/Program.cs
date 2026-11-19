@@ -8,6 +8,8 @@ using Rackroom.Infrastructure.Tenant;
 using Serilog;
 using QuestPDF.Infrastructure;
 using Rackroom.Infrastructure.Pdf;
+using Rackroom.Infrastructure.Security;
+using Rackroom.Infrastructure.QrCode;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,9 @@ builder.Services.AddScoped<IMembershipManagementService, MembershipManagementSer
 builder.Services.AddScoped<IPaymentManagementService, PaymentManagementService>();
 builder.Services.AddScoped<IInvoicePdfGenerator, QuestPdfInvoiceGenerator>();
 builder.Services.AddScoped<IInvoicePdfStorage, FileInvoicePdfStorage>();
+builder.Services.AddScoped<IAttendanceManagementService, AttendanceManagementService>();
+builder.Services.AddScoped<IAttendanceTokenService, AttendanceTokenService>();
+builder.Services.AddScoped<IQrCodeGenerator, QrCodeGeneratorService>();
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -61,6 +66,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("StaffOrAdmin", policy => policy.RequireRole("Staff", "Admin"));
+    options.AddPolicy("MemberOnly", policy => policy.RequireRole("Member"));
 });
 
 builder.Services.AddRazorPages(options =>
