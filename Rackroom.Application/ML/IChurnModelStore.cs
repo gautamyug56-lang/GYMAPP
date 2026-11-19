@@ -7,4 +7,5 @@ public interface IChurnModelStore
     Task SaveModelAsync(Microsoft.ML.ITransformer model, Microsoft.ML.Data.DataViewSchema schema, CancellationToken cancellationToken = default);
     Task<(Microsoft.ML.ITransformer Model, Microsoft.ML.Data.DataViewSchema Schema)> LoadModelAsync(CancellationToken cancellationToken = default);
     Task SaveReportAsync(ChurnTrainingResult result, CancellationToken cancellationToken = default);
+    Task<ChurnTrainingResult?> LoadReportAsync(CancellationToken cancellationToken = default);
 }
