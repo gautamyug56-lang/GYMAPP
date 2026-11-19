@@ -32,6 +32,52 @@ public interface IRackroomDataStore
     Task<IReadOnlyList<Payment>> GetPaymentsAsync(Guid gymId, CancellationToken cancellationToken = default);
     Task<decimal> GetPaymentTotalAsync(Guid gymId, DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken = default);
 
+    Task<DashboardMetricsData> GetDashboardMetricsAsync(
+        Guid gymId,
+        DateTime monthStartUtc,
+        DateTime nextMonthStartUtc,
+        DateTime nowUtc,
+        DateTime tomorrowUtc,
+        DateTime expiryWindowEndUtc,
+        DateTime paymentDeadlineEndUtc,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<DashboardChartPoint>> GetRevenueByMonthAsync(
+        Guid gymId,
+        DateTime firstMonthStartUtc,
+        DateTime nextMonthStartUtc,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<DashboardChartPoint>> GetNewMembersByMonthAsync(
+        Guid gymId,
+        DateTime firstMonthStartUtc,
+        DateTime nextMonthStartUtc,
+        CancellationToken cancellationToken = default);
+
+    Task<DashboardPageData<DashboardMembershipRow>> GetExpiringMembershipsAsync(
+        Guid gymId,
+        DateTime nowUtc,
+        DateTime endUtc,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
+    Task<DashboardPageData<DashboardMembershipRow>> GetPaymentDeadlinesAsync(
+        Guid gymId,
+        DateTime nowUtc,
+        DateTime endUtc,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
+    Task<DashboardPageData<DashboardAttendanceRow>> GetTodaysAttendanceAsync(
+        Guid gymId,
+        DateTime todayStartUtc,
+        DateTime tomorrowUtc,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
     Task<Membership?> GetActiveMembershipForMemberAsync(Guid gymId, Guid memberId, DateTime atUtc, CancellationToken cancellationToken = default);
     Task AddAttendanceAsync(Attendance attendance, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Attendance>> GetMemberAttendanceHistoryAsync(Guid gymId, Guid memberId, int take, CancellationToken cancellationToken = default);
@@ -41,6 +87,36 @@ public interface IRackroomDataStore
 
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }
+
+public sealed record DashboardMetricsData(
+    decimal MonthlyRevenue,
+    int NewMembers,
+    int ExpiringMemberships,
+    int PaymentDeadlines,
+    int TodaysAttendance);
+
+public sealed record DashboardChartPoint(
+    string Label,
+    decimal Value);
+
+public sealed record DashboardMembershipRow(
+    Guid MembershipId,
+    string MemberName,
+    string Email,
+    string PlanName,
+    DateTime EndDateUtc);
+
+public sealed record DashboardAttendanceRow(
+    Guid AttendanceId,
+    string MemberName,
+    DateTime CheckedInAtUtc,
+    string Source);
+
+public sealed record DashboardPageData<T>(
+    IReadOnlyList<T> Items,
+    int TotalCount,
+    int Page,
+    int PageSize);
 
 public sealed record AttendanceStatisticsData(
     int TotalCheckIns,
