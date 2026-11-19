@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Rackroom.Application.Abstractions;
 
 namespace Rackroom.Infrastructure.Tenant;
