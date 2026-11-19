@@ -312,6 +312,9 @@ public sealed class RackroomDataStore : IRackroomDataStore
     public async Task<IReadOnlyList<Invoice>> GetMemberInvoicesAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default) =>
         await _db.Invoices.AsNoTracking().Include(x => x.Payment).Where(x => x.GymId == gymId && x.Payment!.MemberId == memberId).OrderByDescending(x => x.IssuedAtUtc).ToListAsync(cancellationToken);
 
+    public Task<bool> InvoiceBelongsToMemberAsync(Guid gymId, int invoiceNumber, Guid memberId, CancellationToken cancellationToken = default) =>
+        _db.Invoices.AnyAsync(x => x.GymId == gymId && x.InvoiceNumber == invoiceNumber && x.Payment!.MemberId == memberId, cancellationToken);
+
     public Task<WorkoutPlanAssignment?> GetActiveWorkoutPlanAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default) =>
         _db.WorkoutPlanAssignments.AsNoTracking().Include(x => x.WorkoutPlanTemplate)
             .SingleOrDefaultAsync(x => x.GymId == gymId && x.MemberId == memberId && x.IsActive, cancellationToken);
