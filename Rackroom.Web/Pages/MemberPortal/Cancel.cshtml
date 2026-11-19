@@ -1,0 +1,10 @@
+@page
+@model Rackroom.Web.Pages.MemberPortal.CancelModel
+<div class="container py-4"><div class="card shadow-sm"><div class="card-body">
+<h1 class="h4">Request cancellation</h1>
+<p class="text-muted">Cancellation takes effect at the end of your paid membership period.</p>
+@if(Model.Error is not null){<div class="alert alert-danger">@Model.Error</div>}
+<form method="post"><input type="hidden" asp-for="MembershipId"/>
+<div class="mb-3"><label asp-for="Reason" class="form-label">Reason</label><textarea asp-for="Reason" class="form-control" required></textarea></div>
+<button class="btn btn-danger">Submit cancellation</button> <a asp-page="./Index" class="btn btn-secondary">Cancel</a>
+</form></div></div></div>
