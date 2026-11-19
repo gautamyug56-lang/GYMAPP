@@ -1,0 +1,50 @@
+@page
+@model Rackroom.Web.Pages.Attendance.StaffCheckInModel
+@{
+    ViewData["Title"] = "Staff Check-in";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h4">Staff-assisted check-in</h1>
+                    <p class="text-muted">
+                        Use this when a member cannot scan the desk QR code.
+                    </p>
+
+                    @if (Model.CheckedIn)
+                    {
+                        <div class="alert alert-success">
+                            Attendance recorded successfully.
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger">@Model.ErrorMessage</div>
+                    }
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label asp-for="MemberId" class="form-label">Member</label>
+                            <select asp-for="MemberId" class="form-select">
+                                <option value="">Select a member</option>
+                                @foreach (var member in Model.Members.Where(x => x.IsActive))
+                                {
+                                    <option value="@member.Id">
+                                        @member.FirstName @member.LastName — @member.Email
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Record Check-in</button>
+                        <a asp-page="/Attendance/Index" class="btn btn-outline-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
