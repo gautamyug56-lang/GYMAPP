@@ -231,6 +231,72 @@ public sealed class RackroomDataStore : IRackroomDataStore
         return _db.CancellationRecords.AddAsync(cancellationRecord, cancellationToken).AsTask();
     }
 
+
+
+    public Task<Membership?> GetMembershipForPaymentAsync(
+        Guid gymId,
+        Guid membershipId,
+        CancellationToken cancellationToken = default)
+    {
+        return _db.Memberships
+            .Include(x => x.Member)
+                .ThenInclude(x => x!.Gym)
+            .Include(x => x.MembershipPlan)
+            .SingleOrDefaultAsync(
+                x => x.GymId == gymId && x.Id == membershipId,
+                cancellationToken);
+    }
+
+    public async Task AddPaymentAndInvoiceAsync(
+        Payment payment,
+        Invoice invoice,
+        CancellationToken cancellationToken = default)
+    {
+        await using var transaction =
+            await _db.Database.BeginTransactionAsync(cancellationToken);
+
+        int nextInvoiceNumber = (await _db.Invoices
+            .Where(x => x.GymId == payment.GymId)
+            .Select(x => (int?)x.InvoiceNumber)
+            .MaxAsync(cancellationToken) ?? 0) + 1;
+
+        invoice.InvoiceNumber = nextInvoiceNumber;
+
+        _db.Payments.Add(payment);
+        _db.Invoices.Add(invoice);
+
+        await _db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Payment>> GetPaymentsAsync(
+        Guid gymId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _db.Payments
+            .AsNoTracking()
+            .Include(x => x.Member)
+            .Include(x => x.Membership)
+                .ThenInclude(x => x!.MembershipPlan)
+            .Include(x => x.Invoice)
+            .Where(x => x.GymId == gymId)
+            .OrderByDescending(x => x.PaidAtUtc)
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<decimal> GetPaymentTotalAsync(
+        Guid gymId,
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken cancellationToken = default)
+    {
+        return _db.Payments
+            .Where(x => x.GymId == gymId &&
+                        x.PaidAtUtc >= fromUtc &&
+                        x.PaidAtUtc < toUtc)
+            .SumAsync(x => x.Amount, cancellationToken);
+    }
+
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return _db.SaveChangesAsync(cancellationToken);
