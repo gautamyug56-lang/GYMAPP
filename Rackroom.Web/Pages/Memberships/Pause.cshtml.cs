@@ -49,8 +49,8 @@ public class PauseModel : PageModel
         {
             await _membershipService.RequestPauseAsync(
                 id,
-                Input.StartDateUtc,
-                Input.EndDateUtc,
+                DateTime.SpecifyKind(Input.StartDateUtc.Date, DateTimeKind.Utc),
+                DateTime.SpecifyKind(Input.EndDateUtc.Date, DateTimeKind.Utc),
                 Input.Reason,
                 cancellationToken);
         }
