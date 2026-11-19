@@ -78,6 +78,8 @@ public interface IRackroomDataStore
         int pageSize,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<Guid>> GetGymIdsAsync(CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<Membership>> GetMembershipsForExpiryReminderAsync(
         Guid gymId,
         DateTime nowUtc,
