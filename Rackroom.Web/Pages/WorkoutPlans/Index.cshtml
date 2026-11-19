@@ -1,0 +1,5 @@
+@page
+@model Rackroom.Web.Pages.WorkoutPlans.IndexModel
+<div class="container py-4"><div class="d-flex justify-content-between mb-3"><h1 class="h3">Workout Plans</h1><a asp-page="./Create" class="btn btn-primary">Create plan</a></div>
+@foreach(var p in Model.Templates){<div class="card shadow-sm mb-2"><div class="card-body"><h2 class="h5">@p.Name</h2><p class="mb-1">@p.Description</p><small class="text-muted">@p.PlanJson</small><div><a asp-page="./Assign" asp-route-templateId="@p.Id" class="btn btn-sm btn-outline-primary mt-2">Assign to member</a></div></div></div>}
+</div>
