@@ -23,11 +23,14 @@ public class Stage4AttendanceTests
         var store = CreateStore();
         var tokenService = new Mock<IAttendanceTokenService>();
 
+        Guid tokenGymId = GymId;
+        DateTimeOffset tokenExpires = CheckInTime.AddMinutes(1);
+
         tokenService
             .Setup(x => x.TryValidateToken(
                 "valid-token",
-                out GymId,
-                out It.IsAny<DateTimeOffset>()))
+                out tokenGymId,
+                out tokenExpires))
             .Returns(true);
 
         var service = CreateService(store, tokenService.Object);
@@ -215,12 +218,13 @@ public class Stage4AttendanceTests
     private static Mock<IAttendanceTokenService> CreateValidTokenService()
     {
         var tokenService = new Mock<IAttendanceTokenService>();
+        Guid tokenGymId = GymId;
         DateTimeOffset expires = CheckInTime.AddMinutes(1);
 
         tokenService
             .Setup(x => x.TryValidateToken(
                 "valid-token",
-                out GymId,
+                out tokenGymId,
                 out expires))
             .Returns(true);
 
