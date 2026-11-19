@@ -24,6 +24,17 @@ public sealed class RackroomDataStore : IRackroomDataStore
                 cancellationToken);
     }
 
+    public Task<Member?> GetMemberByEmailAsync(
+        Guid gymId,
+        string email,
+        CancellationToken cancellationToken = default)
+    {
+        return _db.Members
+            .SingleOrDefaultAsync(
+                x => x.GymId == gymId && x.Email == email,
+                cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Member>> SearchMembersAsync(
         Guid gymId,
         string? search,
@@ -302,3 +313,125 @@ public sealed class RackroomDataStore : IRackroomDataStore
         return _db.SaveChangesAsync(cancellationToken);
     }
 }
+
+
+    public Task<Membership?> GetActiveMembershipForMemberAsync(
+        Guid gymId,
+        Guid memberId,
+        DateTime atUtc,
+        CancellationToken cancellationToken = default)
+    {
+        return _db.Memberships
+            .Include(x => x.MembershipPlan)
+            .SingleOrDefaultAsync(
+                x => x.GymId == gymId &&
+                     x.MemberId == memberId &&
+                     x.Status == MembershipStatus.Active &&
+                     x.StartDateUtc <= atUtc &&
+                     x.EndDateUtc > atUtc,
+                cancellationToken);
+    }
+
+    public Task AddAttendanceAsync(
+        Attendance attendance,
+        CancellationToken cancellationToken = default)
+    {
+        return _db.Attendances.AddAsync(attendance, cancellationToken).AsTask();
+    }
+
+    public async Task<IReadOnlyList<Attendance>> GetMemberAttendanceHistoryAsync(
+        Guid gymId,
+        Guid memberId,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        return await _db.Attendances
+            .AsNoTracking()
+            .Include(x => x.Member)
+            .Where(x => x.GymId == gymId && x.MemberId == memberId)
+            .OrderByDescending(x => x.CheckedInAtUtc)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Attendance>> GetGymAttendanceHistoryAsync(
+        Guid gymId,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        return await _db.Attendances
+            .AsNoTracking()
+            .Include(x => x.Member)
+            .Where(x => x.GymId == gymId)
+            .OrderByDescending(x => x.CheckedInAtUtc)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<AttendanceStatisticsData> GetMemberAttendanceStatisticsAsync(
+        Guid gymId,
+        Guid memberId,
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken cancellationToken = default)
+    {
+        return await BuildAttendanceStatisticsAsync(
+            _db.Attendances.Where(x =>
+                x.GymId == gymId &&
+                x.MemberId == memberId &&
+                x.CheckedInAtUtc >= fromUtc &&
+                x.CheckedInAtUtc < toUtc),
+            cancellationToken);
+    }
+
+    public async Task<AttendanceStatisticsData> GetGymAttendanceStatisticsAsync(
+        Guid gymId,
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken cancellationToken = default)
+    {
+        return await BuildAttendanceStatisticsAsync(
+            _db.Attendances.Where(x =>
+                x.GymId == gymId &&
+                x.CheckedInAtUtc >= fromUtc &&
+                x.CheckedInAtUtc < toUtc),
+            cancellationToken);
+    }
+
+    private static async Task<AttendanceStatisticsData> BuildAttendanceStatisticsAsync(
+        IQueryable<Attendance> query,
+        CancellationToken cancellationToken)
+    {
+        int totalCheckIns = await query.CountAsync(cancellationToken);
+
+        DateTime nowUtc = DateTime.UtcNow;
+        DateTime monthStart = new(
+            nowUtc.Year,
+            nowUtc.Month,
+            1,
+            0,
+            0,
+            0,
+            DateTimeKind.Utc);
+
+        DateTime thirtyDaysAgo = nowUtc.AddDays(-30);
+
+        int currentMonthCheckIns = await query.CountAsync(
+            x => x.CheckedInAtUtc >= monthStart,
+            cancellationToken);
+
+        int last30DaysCheckIns = await query.CountAsync(
+            x => x.CheckedInAtUtc >= thirtyDaysAgo,
+            cancellationToken);
+
+        int distinctDaysVisited = await query
+            .Select(x => x.CheckedInAtUtc.Date)
+            .Distinct()
+            .CountAsync(cancellationToken);
+
+        return new AttendanceStatisticsData(
+            totalCheckIns,
+            currentMonthCheckIns,
+            last30DaysCheckIns,
+            distinctDaysVisited);
+    }
