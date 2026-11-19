@@ -42,6 +42,15 @@ public sealed class FileChurnModelStore : IChurnModelStore
         return (model, schema);
     }
 
+    public async Task<ChurnTrainingResult?> LoadReportAsync(CancellationToken cancellationToken = default)
+    {
+        if (!File.Exists(ReportPath))
+            return null;
+
+        string json = await File.ReadAllTextAsync(ReportPath, cancellationToken);
+        return JsonSerializer.Deserialize<ChurnTrainingResult>(json);
+    }
+
     public async Task SaveReportAsync(
         ChurnTrainingResult result,
         CancellationToken cancellationToken = default)
