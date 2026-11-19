@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Rackroom.Application.Services;
-using Rackroom.Domain.Entities;
+using AttendanceEntity = Rackroom.Domain.Entities.Attendance;
 
 namespace Rackroom.Web.Pages.Attendance;
 
@@ -16,7 +16,7 @@ public class IndexModel : PageModel
         _attendanceService = attendanceService;
     }
 
-    public IReadOnlyList<Attendance> AttendanceHistory { get; private set; } = [];
+    public IReadOnlyList<AttendanceEntity> AttendanceHistory { get; private set; } = [];
     public AttendanceStatistics Statistics { get; private set; } =
         new(0, 0, 0, 0);
 
