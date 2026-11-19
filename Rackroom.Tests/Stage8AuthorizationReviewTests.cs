@@ -9,6 +9,7 @@ using MembershipPages = Rackroom.Web.Pages.Memberships;
 using PaymentPages = Rackroom.Web.Pages.Payments;
 using PlanPages = Rackroom.Web.Pages.Plans;
 using WorkoutPlanPages = Rackroom.Web.Pages.WorkoutPlans;
+using PaymentPages = Rackroom.Web.Pages.Payments;
 
 namespace Rackroom.Tests;
 
@@ -57,7 +58,7 @@ public class Stage8AuthorizationReviewTests
     [Fact]
     public void Member_invoice_page_allows_member_policy()
     {
-        AssertPolicy<InvoiceModel>("StaffOrAdminOrMember");
+        AssertPolicy<PaymentPages.InvoiceModel>("StaffOrAdminOrMember");
     }
 
     private static void AssertPolicy<TPage>(string expectedPolicy)
