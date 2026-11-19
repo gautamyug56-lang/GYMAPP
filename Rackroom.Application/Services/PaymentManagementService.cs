@@ -102,9 +102,9 @@ public sealed class PaymentManagementService : IPaymentManagementService
             GymId = gymId,
             PaymentId = payment.Id,
             IssuedAtUtc = DateTime.UtcNow,
-            GymPanNumber = membership.Gym?.PanNumber,
-            GymBusinessName = membership.Gym?.Name,
-            GymAddress = membership.Gym?.Address
+            GymPanNumber = membership.Member.Gym?.PanNumber,
+            GymBusinessName = membership.Member.Gym?.Name,
+            GymAddress = membership.Member.Gym?.Address
         };
 
         await _dataStore.AddPaymentAndInvoiceAsync(
