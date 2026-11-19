@@ -1,0 +1,24 @@
+@page "{id:guid}"
+@model Rackroom.Web.Pages.Members.DeactivateModel
+@{
+    ViewData["Title"] = "Deactivate Member";
+}
+
+<div class="container py-4">
+    <div class="card border-danger" style="max-width: 600px;">
+        <div class="card-body">
+            <h1 class="h4 text-danger">Deactivate member</h1>
+            <p>
+                Are you sure you want to deactivate
+                <strong>@Model.Member?.FirstName @Model.Member?.LastName</strong>?
+            </p>
+            <p class="text-muted">The member record and history are retained; the member simply becomes inactive.</p>
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <button type="submit" class="btn btn-danger">Deactivate</button>
+                <a asp-page="./Index" class="btn btn-outline-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
