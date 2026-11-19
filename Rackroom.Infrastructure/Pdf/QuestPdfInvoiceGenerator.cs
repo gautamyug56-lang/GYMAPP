@@ -1,4 +1,5 @@
 using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using Rackroom.Application.Abstractions;
@@ -7,6 +8,10 @@ namespace Rackroom.Infrastructure.Pdf;
 
 public sealed class QuestPdfInvoiceGenerator : IInvoicePdfGenerator
 {
+    static QuestPdfInvoiceGenerator()
+    {
+        QuestPDF.Settings.License = LicenseType.Community;
+    }
     public byte[] Generate(InvoicePdfModel model)
     {
         return Document.Create(document =>
