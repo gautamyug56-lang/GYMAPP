@@ -147,6 +147,21 @@ public sealed class RackroomDataStore : IRackroomDataStore
         return _db.Memberships.AddAsync(membership, cancellationToken).AsTask();
     }
 
+    public async Task<IReadOnlyList<Membership>> GetMembershipsAsync(
+        Guid gymId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _db.Memberships
+            .AsNoTracking()
+            .Include(x => x.Member)
+            .Include(x => x.MembershipPlan)
+            .Include(x => x.Pauses)
+            .Include(x => x.CancellationRecord)
+            .Where(x => x.GymId == gymId)
+            .OrderByDescending(x => x.StartDateUtc)
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<MembershipPause?> GetMembershipPauseAsync(
         Guid gymId,
         Guid pauseId,
