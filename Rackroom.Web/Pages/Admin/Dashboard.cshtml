@@ -1,0 +1,258 @@
+@page
+@model Rackroom.Web.Pages.Admin.DashboardModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid px-3 px-lg-4 py-4">
+    <div class="mb-4">
+        <h1 class="h3 mb-1">Admin Dashboard</h1>
+        <p class="text-muted mb-0">A quick view of revenue, members, memberships, payments, and attendance.</p>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-xl">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">This month's revenue</div>
+                    <div class="fs-4 fw-semibold">NPR @Model.Data.Metrics.MonthlyRevenue.ToString("N2")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">New members</div>
+                    <div class="fs-4 fw-semibold">@Model.Data.Metrics.NewMembers</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Expiring in 30 days</div>
+                    <div class="fs-4 fw-semibold">@Model.Data.Metrics.ExpiringMemberships</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Payment deadlines</div>
+                    <div class="fs-4 fw-semibold">@Model.Data.Metrics.PaymentDeadlines</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Today's attendance</div>
+                    <div class="fs-4 fw-semibold">@Model.Data.Metrics.TodaysAttendance</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">Monthly revenue</h2>
+                    <div style="height: 300px;">
+                        <canvas id="revenueChart" aria-label="Monthly revenue chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">New members</h2>
+                    <div style="height: 300px;">
+                        <canvas id="newMembersChart" aria-label="New members by month chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5">Memberships expiring in 30 days</h2>
+                    @if (Model.Data.ExpiringMemberships.Items.Count == 0)
+                    {
+                        <p class="text-muted mb-0">No memberships are expiring in this window.</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Member</th>
+                                        <th>Plan</th>
+                                        <th>Expires</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var item in Model.Data.ExpiringMemberships.Items)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div>@item.MemberName</div>
+                                            <small class="text-muted">@item.Email</small>
+                                        </td>
+                                        <td>@item.PlanName</td>
+                                        <td>@item.EndDateUtc.ToLocalTime().ToString("yyyy-MM-dd")</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                        <partial name="_DashboardPagination"
+                                 model="new DashboardPaginationModel(
+                                     Model.ExpiringPage,
+                                     Model.PageCount(Model.Data.ExpiringMemberships.TotalCount, Model.Data.ExpiringMemberships.PageSize),
+                                     "expiringPage")" />
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5">Payment deadlines in 7 days</h2>
+                    @if (Model.Data.PaymentDeadlines.Items.Count == 0)
+                    {
+                        <p class="text-muted mb-0">No payment deadlines are approaching.</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Member</th>
+                                        <th>Plan</th>
+                                        <th>Deadline</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var item in Model.Data.PaymentDeadlines.Items)
+                                {
+                                    <tr>
+                                        <td>@item.MemberName</td>
+                                        <td>@item.PlanName</td>
+                                        <td>@item.EndDateUtc.ToLocalTime().ToString("yyyy-MM-dd")</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                        <partial name="_DashboardPagination"
+                                 model="new DashboardPaginationModel(
+                                     Model.PaymentDeadlinePage,
+                                     Model.PageCount(Model.Data.PaymentDeadlines.TotalCount, Model.Data.PaymentDeadlines.PageSize),
+                                     "paymentDeadlinePage")" />
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5">Today's attendance</h2>
+                    @if (Model.Data.TodaysAttendance.Items.Count == 0)
+                    {
+                        <p class="text-muted mb-0">No check-ins recorded today.</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Member</th>
+                                        <th>Time</th>
+                                        <th>Source</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var item in Model.Data.TodaysAttendance.Items)
+                                {
+                                    <tr>
+                                        <td>@item.MemberName</td>
+                                        <td>@item.CheckedInAtUtc.ToLocalTime().ToString("HH:mm")</td>
+                                        <td>@item.Source</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                        <partial name="_DashboardPagination"
+                                 model="new DashboardPaginationModel(
+                                     Model.AttendancePage,
+                                     Model.PageCount(Model.Data.TodaysAttendance.TotalCount, Model.Data.TodaysAttendance.PageSize),
+                                     "attendancePage")" />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.6.1/dist/chart.umd.min.js"></script>
+    <script>
+        const revenue = @Html.Raw(Model.ToJson(Model.Data.RevenueChart));
+        const newMembers = @Html.Raw(Model.ToJson(Model.Data.NewMembersChart));
+
+        new Chart(document.getElementById("revenueChart"), {
+            type: "line",
+            data: {
+                labels: revenue.map(x => x.label),
+                datasets: [{
+                    label: "Revenue (NPR)",
+                    data: revenue.map(x => x.value),
+                    tension: 0.25
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById("newMembersChart"), {
+            type: "bar",
+            data: {
+                labels: newMembers.map(x => x.label),
+                datasets: [{
+                    label: "New members",
+                    data: newMembers.map(x => x.value)
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
