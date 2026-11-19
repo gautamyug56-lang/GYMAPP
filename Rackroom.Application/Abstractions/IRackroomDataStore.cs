@@ -87,6 +87,20 @@ public interface IRackroomDataStore
         CancellationToken cancellationToken = default);
 
     Task<Membership?> GetActiveMembershipForMemberAsync(Guid gymId, Guid memberId, DateTime atUtc, CancellationToken cancellationToken = default);
+    Task<Membership?> GetMemberActiveMembershipAsync(Guid gymId, Guid memberId, DateTime atUtc, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Payment>> GetMemberPaymentsAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Invoice>> GetMemberInvoicesAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default);
+    Task<WorkoutPlanAssignment?> GetActiveWorkoutPlanAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<BodyMeasurement>> GetBodyMeasurementsAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default);
+    Task<bool> HasMeasurementInCalendarMonthAsync(Guid gymId, Guid memberId, DateTime recordedAtUtc, CancellationToken cancellationToken = default);
+    Task AddBodyMeasurementAsync(BodyMeasurement measurement, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<WorkoutPlanTemplate>> GetWorkoutPlanTemplatesAsync(Guid gymId, CancellationToken cancellationToken = default);
+    Task<WorkoutPlanTemplate?> GetWorkoutPlanTemplateAsync(Guid gymId, Guid templateId, CancellationToken cancellationToken = default);
+    Task<bool> WorkoutPlanTemplateNameExistsAsync(Guid gymId, string name, Guid? excludedTemplateId = null, CancellationToken cancellationToken = default);
+    Task AddWorkoutPlanTemplateAsync(WorkoutPlanTemplate template, CancellationToken cancellationToken = default);
+    Task<bool> MemberExistsAsync(Guid gymId, Guid memberId, CancellationToken cancellationToken = default);
+    Task EndActiveWorkoutPlanAssignmentsAsync(Guid gymId, Guid memberId, DateTime endedAtUtc, CancellationToken cancellationToken = default);
+    Task AddWorkoutPlanAssignmentAsync(WorkoutPlanAssignment assignment, CancellationToken cancellationToken = default);
     Task AddAttendanceAsync(Attendance attendance, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Attendance>> GetMemberAttendanceHistoryAsync(Guid gymId, Guid memberId, int take, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Attendance>> GetGymAttendanceHistoryAsync(Guid gymId, int take, CancellationToken cancellationToken = default);
