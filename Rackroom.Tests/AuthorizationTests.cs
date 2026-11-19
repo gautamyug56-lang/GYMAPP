@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Hosting;
 using System.Net;
 
 namespace Rackroom.Tests;
@@ -9,7 +10,7 @@ public class AuthorizationTests : IClassFixture<WebApplicationFactory<Program>>
 
     public AuthorizationTests(WebApplicationFactory<Program> factory)
     {
-        _factory = factory;
+        _factory = factory.WithWebHostBuilder(builder => builder.UseEnvironment("Testing"));
     }
 
     [Fact]
