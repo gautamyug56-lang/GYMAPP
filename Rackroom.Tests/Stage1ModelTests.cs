@@ -25,7 +25,6 @@ public class Stage1ModelTests
 
         string[] expected =
         [
-            "Gym",
             "Member",
             "MembershipPlan",
             "Membership",
