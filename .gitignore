@@ -8,3 +8,5 @@ obj/
 *.db-wal
 .env
 App_Data/invoices/
+
+App_Data/ml/
