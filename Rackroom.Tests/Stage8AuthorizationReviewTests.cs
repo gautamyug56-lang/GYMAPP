@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Rackroom.Web.Pages.Admin;
-using Rackroom.Web.Pages.Admin.Churn;
-using Rackroom.Web.Pages.Attendance;
-using Rackroom.Web.Pages.MemberPortal;
-using Rackroom.Web.Pages.Members;
-using Rackroom.Web.Pages.Memberships;
-using Rackroom.Web.Pages.Payments;
-using Rackroom.Web.Pages.Plans;
-using Rackroom.Web.Pages.WorkoutPlans;
+using ChurnPages = Rackroom.Web.Pages.Admin.Churn;
+using AttendancePages = Rackroom.Web.Pages.Attendance;
+using MemberPortalPages = Rackroom.Web.Pages.MemberPortal;
+using MemberPages = Rackroom.Web.Pages.Members;
+using MembershipPages = Rackroom.Web.Pages.Memberships;
+using PaymentPages = Rackroom.Web.Pages.Payments;
+using PlanPages = Rackroom.Web.Pages.Plans;
+using WorkoutPlanPages = Rackroom.Web.Pages.WorkoutPlans;
 
 namespace Rackroom.Tests;
 
@@ -18,40 +18,40 @@ public class Stage8AuthorizationReviewTests
     public void Admin_pages_require_admin_policy()
     {
         AssertPolicy<DashboardModel>("AdminOnly");
-        AssertPolicy<Churn.IndexModel>("AdminOnly");
-        AssertPolicy<Churn.TrainModel>("AdminOnly");
+        AssertPolicy<ChurnPages.IndexModel>("AdminOnly");
+        AssertPolicy<ChurnPages.TrainModel>("AdminOnly");
     }
 
     [Fact]
     public void Member_portal_pages_require_member_policy()
     {
-        AssertPolicy<MemberPortal.IndexModel>("MemberOnly");
-        AssertPolicy<MemberPortal.PauseModel>("MemberOnly");
-        AssertPolicy<MemberPortal.CancelModel>("MemberOnly");
-        AssertPolicy<MemberPortal.MeasurementModel>("MemberOnly");
+        AssertPolicy<MemberPortalPages.IndexModel>("MemberOnly");
+        AssertPolicy<MemberPortalPages.PauseModel>("MemberOnly");
+        AssertPolicy<MemberPortalPages.CancelModel>("MemberOnly");
+        AssertPolicy<MemberPortalPages.MeasurementModel>("MemberOnly");
     }
 
     [Fact]
     public void Staff_pages_require_staff_or_admin_policy()
     {
-        AssertPolicy<Members.IndexModel>("StaffOrAdmin");
-        AssertPolicy<Members.CreateModel>("StaffOrAdmin");
-        AssertPolicy<Members.EditModel>("StaffOrAdmin");
-        AssertPolicy<Members.DeactivateModel>("StaffOrAdmin");
-        AssertPolicy<Memberships.IndexModel>("StaffOrAdmin");
-        AssertPolicy<Memberships.CreateModel>("StaffOrAdmin");
-        AssertPolicy<Memberships.PauseModel>("StaffOrAdmin");
-        AssertPolicy<Memberships.ApprovePauseModel>("StaffOrAdmin");
-        AssertPolicy<Memberships.CancelModel>("StaffOrAdmin");
-        AssertPolicy<Plans.IndexModel>("StaffOrAdmin");
-        AssertPolicy<Plans.CreateModel>("StaffOrAdmin");
-        AssertPolicy<Payments.IndexModel>("StaffOrAdmin");
-        AssertPolicy<Payments.CreateModel>("StaffOrAdmin");
-        AssertPolicy<Attendance.DeskModel>("StaffOrAdmin");
-        AssertPolicy<Attendance.StaffCheckInModel>("StaffOrAdmin");
-        AssertPolicy<WorkoutPlans.IndexModel>("StaffOrAdmin");
-        AssertPolicy<WorkoutPlans.CreateModel>("StaffOrAdmin");
-        AssertPolicy<WorkoutPlans.AssignModel>("StaffOrAdmin");
+        AssertPolicy<MemberPages.IndexModel>("StaffOrAdmin");
+        AssertPolicy<MemberPages.CreateModel>("StaffOrAdmin");
+        AssertPolicy<MemberPages.EditModel>("StaffOrAdmin");
+        AssertPolicy<MemberPages.DeactivateModel>("StaffOrAdmin");
+        AssertPolicy<MembershipPages.IndexModel>("StaffOrAdmin");
+        AssertPolicy<MembershipPages.CreateModel>("StaffOrAdmin");
+        AssertPolicy<MembershipPages.PauseModel>("StaffOrAdmin");
+        AssertPolicy<MembershipPages.ApprovePauseModel>("StaffOrAdmin");
+        AssertPolicy<MembershipPages.CancelModel>("StaffOrAdmin");
+        AssertPolicy<PlanPages.IndexModel>("StaffOrAdmin");
+        AssertPolicy<PlanPages.CreateModel>("StaffOrAdmin");
+        AssertPolicy<PaymentPages.IndexModel>("StaffOrAdmin");
+        AssertPolicy<PaymentPages.CreateModel>("StaffOrAdmin");
+        AssertPolicy<AttendancePages.DeskModel>("StaffOrAdmin");
+        AssertPolicy<AttendancePages.StaffCheckInModel>("StaffOrAdmin");
+        AssertPolicy<WorkoutPlanPages.IndexModel>("StaffOrAdmin");
+        AssertPolicy<WorkoutPlanPages.CreateModel>("StaffOrAdmin");
+        AssertPolicy<WorkoutPlanPages.AssignModel>("StaffOrAdmin");
     }
 
     [Fact]
