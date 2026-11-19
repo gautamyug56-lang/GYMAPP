@@ -9,7 +9,6 @@ using MembershipPages = Rackroom.Web.Pages.Memberships;
 using PaymentPages = Rackroom.Web.Pages.Payments;
 using PlanPages = Rackroom.Web.Pages.Plans;
 using WorkoutPlanPages = Rackroom.Web.Pages.WorkoutPlans;
-using PaymentPages = Rackroom.Web.Pages.Payments;
 
 namespace Rackroom.Tests;
 
