@@ -4,13 +4,13 @@
 {
     <nav aria-label="Dashboard pagination">
         <ul class="pagination pagination-sm mb-0">
-            @for (int page = 1; page <= Model.PageCount; page++)
+            @for (int pageNumber = 1; pageNumber <= Model.PageCount; pageNumber++)
             {
-                <li class="page-item @(page == Model.CurrentPage ? "active" : "")">
+                <li class="page-item @(pageNumber == Model.CurrentPage ? "active" : "")">
                     <a class="page-link"
                        asp-page="./Dashboard"
-                       href="@(Model.QueryParameter == "expiringPage" ? $"?expiringPage={page}" : Model.QueryParameter == "paymentDeadlinePage" ? $"?paymentDeadlinePage={page}" : $"?attendancePage={page}")">
-                        @page
+                       href="@(Model.QueryParameter == "expiringPage" ? $"?expiringPage={pageNumber}" : Model.QueryParameter == "paymentDeadlinePage" ? $"?paymentDeadlinePage={page}" : $"?attendancePage={page}")">
+                        @pageNumber
                     </a>
                 </li>
             }
