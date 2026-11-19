@@ -46,6 +46,9 @@ public class DashboardModel : PageModel
     }
 
     public int ExpiringPageCount => PageCount(Data.ExpiringMemberships.TotalCount, Data.ExpiringMemberships.PageSize);
+    public DashboardPaginationModel ExpiringPagination => new(ExpiringPage, ExpiringPageCount, "expiringPage");
+    public DashboardPaginationModel PaymentDeadlinePagination => new(PaymentDeadlinePage, PaymentDeadlinePageCount, "paymentDeadlinePage");
+    public DashboardPaginationModel AttendancePagination => new(AttendancePage, AttendancePageCount, "attendancePage");
     public int PaymentDeadlinePageCount => PageCount(Data.PaymentDeadlines.TotalCount, Data.PaymentDeadlines.PageSize);
     public int AttendancePageCount => PageCount(Data.TodaysAttendance.TotalCount, Data.TodaysAttendance.PageSize);
     public string RevenueJson => ToJson(Data.RevenueChart);
