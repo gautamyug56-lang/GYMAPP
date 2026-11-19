@@ -1,0 +1,90 @@
+@page
+@model Rackroom.Web.Pages.Memberships.IndexModel
+@{
+    ViewData["Title"] = "Memberships";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h3 mb-1">Memberships</h1>
+            <p class="text-muted mb-0">Assign memberships and manage pauses and cancellations.</p>
+        </div>
+        <a asp-page="./Create" class="btn btn-primary">Assign Membership</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Member</th>
+                    <th>Plan</th>
+                    <th>Start</th>
+                    <th>Expiry</th>
+                    <th>Status</th>
+                    <th>Pause</th>
+                    <th>Cancellation</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var membership in Model.Memberships)
+            {
+                <tr>
+                    <td>@membership.Member?.FirstName @membership.Member?.LastName</td>
+                    <td>@membership.MembershipPlan?.Name</td>
+                    <td>@membership.StartDateUtc.ToString("yyyy-MM-dd")</td>
+                    <td>@membership.EndDateUtc.ToString("yyyy-MM-dd")</td>
+                    <td>@membership.Status</td>
+                    <td>
+                        @if (membership.Pauses.Any(x => x.Status == PauseStatus.Pending))
+                        {
+                            <span class="badge text-bg-warning">Pending approval</span>
+                        }
+                        else if (membership.Pauses.Any(x => x.Status == PauseStatus.Approved))
+                        {
+                            <span class="badge text-bg-info">Has approved pause</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">None</span>
+                        }
+                    </td>
+                    <td>
+                        @if (membership.CancellationRecord is not null)
+                        {
+                            <span class="badge text-bg-secondary">
+                                Effective @membership.CancellationRecord.EffectiveAtUtc.ToString("yyyy-MM-dd")
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">None</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        @if (membership.Status == MembershipStatus.Active)
+                        {
+                            <a asp-page="./Pause" asp-route-id="@membership.Id"
+                               class="btn btn-sm btn-outline-primary">Request Pause</a>
+                            <a asp-page="./Cancel" asp-route-id="@membership.Id"
+                               class="btn btn-sm btn-outline-danger">Cancel</a>
+                        }
+
+                        @foreach (var pause in membership.Pauses.Where(x => x.Status == PauseStatus.Pending))
+                        {
+                            <a asp-page="./ApprovePause" asp-route-id="@pause.Id"
+                               class="btn btn-sm btn-outline-success">Approve Pause</a>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.Memberships.Count == 0)
+    {
+        <div class="alert alert-info">No memberships exist yet.</div>
+    }
+</div>
