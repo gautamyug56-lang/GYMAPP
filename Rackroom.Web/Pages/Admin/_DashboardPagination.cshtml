@@ -1,0 +1,19 @@
+@model Rackroom.Web.Pages.Admin.DashboardPaginationModel
+
+@if (Model.PageCount > 1)
+{
+    <nav aria-label="Dashboard pagination">
+        <ul class="pagination pagination-sm mb-0">
+            @for (int page = 1; page <= Model.PageCount; page++)
+            {
+                <li class="page-item @(page == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-page="./Dashboard"
+                       asp-route-@Model.QueryParameter="@page">
+                        @page
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
