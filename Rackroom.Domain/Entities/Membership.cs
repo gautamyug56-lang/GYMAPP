@@ -10,6 +10,7 @@ public class Membership
     public DateTime EndDateUtc { get; set; }
     public MembershipStatus Status { get; set; } = MembershipStatus.Active;
     public DateTime? LastPaidAtUtc { get; set; }
+    public DateTime? ExpiryReminderSentAtUtc { get; set; }
     public DateTime CreatedAtUtc { get; set; }
 
     public Gym? Gym { get; set; }
