@@ -424,6 +424,24 @@ public sealed class RackroomDataStore : IRackroomDataStore
     }
 
 
+    public async Task<IReadOnlyList<Membership>> GetMembershipsForExpiryReminderAsync(
+        Guid gymId,
+        DateTime nowUtc,
+        DateTime reminderWindowEndUtc,
+        CancellationToken cancellationToken = default)
+    {
+        return await _db.Memberships
+            .Include(x => x.Member)
+            .Include(x => x.MembershipPlan)
+            .Where(x => x.GymId == gymId &&
+                        x.Status == MembershipStatus.Active &&
+                        x.EndDateUtc >= nowUtc &&
+                        x.EndDateUtc < reminderWindowEndUtc &&
+                        x.ExpiryReminderSentAtUtc == null)
+            .OrderBy(x => x.EndDateUtc)
+            .ToListAsync(cancellationToken);
+    }
+
     // Stage 5 dashboard queries
 
     public async Task<DashboardMetricsData> GetDashboardMetricsAsync(
