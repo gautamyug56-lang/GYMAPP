@@ -20,5 +20,6 @@
     <PackageReference Include="Serilog.AspNetCore" Version="11.0.0" />
     <PackageReference Include="QuestPDF" Version="2026.9.2" />
     <PackageReference Include="QRCoder" Version="1.8.1" />
+    <PackageReference Include="MailKit" Version="5.0.0" />
   </ItemGroup>
 </Project>
