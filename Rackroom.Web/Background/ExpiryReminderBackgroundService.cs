@@ -85,8 +85,8 @@ public sealed class ExpiryReminderBackgroundService : BackgroundService
                             $"{membership.Member.FirstName} {membership.Member.LastName}".Trim();
 
                         string subject = "Rackroom membership expiry reminder";
-                        string body =
-                            $"Hello {memberName},
+                        string body = $""" 
+Hello {memberName},
 
 Your Rackroom membership is due to expire on {membership.EndDateUtc:yyyy-MM-dd}.
 
@@ -95,8 +95,8 @@ Membership plan: {membership.MembershipPlan?.Name ?? "Membership"}
 Please contact the gym if you would like to renew your membership.
 
 Regards,
-Rackroom";
-
+Rackroom
+""";
                         await emailSender.SendAsync(
                             membership.Member.Email,
                             subject,
