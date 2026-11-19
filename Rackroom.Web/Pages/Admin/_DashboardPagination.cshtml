@@ -9,7 +9,7 @@
                 <li class="page-item @(page == Model.CurrentPage ? "active" : "")">
                     <a class="page-link"
                        asp-page="./Dashboard"
-                       href="@($"{HttpContext.Request.Path}?{Model.QueryParameter}={page}")">
+                       href="@(Model.QueryParameter == "expiringPage" ? $"?expiringPage={page}" : Model.QueryParameter == "paymentDeadlinePage" ? $"?paymentDeadlinePage={page}" : $"?attendancePage={page}")">
                         @page
                     </a>
                 </li>
