@@ -1,0 +1,53 @@
+@page
+@model Rackroom.Web.Pages.Plans.IndexModel
+@{
+    ViewData["Title"] = "Membership Plans";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h3 mb-1">Membership Plans</h1>
+            <p class="text-muted mb-0">Create the monthly, 3-month, and annual plans offered by the gym.</p>
+        </div>
+        <a asp-page="./Create" class="btn btn-primary">Create Plan</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Duration</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var plan in Model.Plans)
+            {
+                <tr>
+                    <td>@plan.Name</td>
+                    <td>@plan.DurationMonths month@(plan.DurationMonths == 1 ? "" : "s")</td>
+                    <td>NPR @plan.Price.ToString("N2")</td>
+                    <td>
+                        @if (plan.IsActive)
+                        {
+                            <span class="badge text-bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-secondary">Inactive</span>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.Plans.Count == 0)
+    {
+        <div class="alert alert-info">No membership plans exist yet.</div>
+    }
+</div>
