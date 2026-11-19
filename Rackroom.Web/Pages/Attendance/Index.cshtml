@@ -1,0 +1,109 @@
+@page
+@model Rackroom.Web.Pages.Attendance.IndexModel
+@{
+    ViewData["Title"] = "Attendance";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Attendance</h1>
+            <p class="text-muted mb-0">
+                @(Model.IsStaffView ? "Gym attendance overview." : "Your attendance history and progress.")
+            </p>
+        </div>
+
+        @if (Model.IsStaffView)
+        {
+            <div class="d-flex gap-2">
+                <a asp-page="./Desk" class="btn btn-primary">QR Desk</a>
+                <a asp-page="./StaffCheckIn" class="btn btn-outline-primary">Staff Check-in</a>
+            </div>
+        }
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Total check-ins</div>
+                    <div class="fs-3 fw-semibold">@Model.Statistics.TotalCheckIns</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">This month</div>
+                    <div class="fs-3 fw-semibold">@Model.Statistics.CurrentMonthCheckIns</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Last 30 days</div>
+                    <div class="fs-3 fw-semibold">@Model.Statistics.Last30DaysCheckIns</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Distinct days visited</div>
+                    <div class="fs-3 fw-semibold">@Model.Statistics.DistinctDaysVisited</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2 class="h5">Recent check-ins</h2>
+
+            @if (Model.AttendanceHistory.Count == 0)
+            {
+                <div class="alert alert-info mb-0">No attendance records yet.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle mb-0">
+                        <thead>
+                            <tr>
+                                @if (Model.IsStaffView)
+                                {
+                                    <th>Member</th>
+                                }
+                                <th>Check-in time</th>
+                                <th>Source</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var attendance in Model.AttendanceHistory)
+                        {
+                            <tr>
+                                @if (Model.IsStaffView)
+                                {
+                                    <td>@attendance.Member?.FirstName @attendance.Member?.LastName</td>
+                                }
+                                <td>@attendance.CheckedInAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>
+                                    @if (attendance.Source == "QrCode")
+                                    {
+                                        <span class="badge text-bg-primary">QR code</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-bg-secondary">Staff assisted</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
