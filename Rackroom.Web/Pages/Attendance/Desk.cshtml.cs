@@ -36,7 +36,8 @@ public class DeskModel : PageModel
 
         string token = _tokenService.CreateToken(gymId, ExpiresAtUtc);
         string checkInUrl = Url.Page(
-            "/Attendance/CheckIn",
+            pageName: "/Attendance/CheckIn",
+            pageHandler: null,
             values: new { token },
             protocol: Request.Scheme,
             host: Request.Host.ToString())!;
