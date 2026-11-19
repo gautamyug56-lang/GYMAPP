@@ -47,7 +47,10 @@ public class DashboardModel : PageModel
 
     public static string ToJson<T>(T value)
     {
-        return JsonSerializer.Serialize(value);
+        return JsonSerializer.Serialize(value, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
     }
 
     public static int PageCount(int totalCount, int pageSize)
